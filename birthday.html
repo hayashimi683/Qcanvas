@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qcanvas Birthday Countdown</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2b5876, #4e4376);
+            background-attachment: fixed;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .countdown-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .countdown-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .member-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: block;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .countdown {
+            font-size: 1.5em;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .birthday-date {
+            color: #666;
+            margin: 10px 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .back-to-main {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .back-to-main a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .back-to-main a:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .birthday-today {
+            animation: pulse 2s infinite;
+        }
+
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti {
+            width: 10px;
+            height: 10px;
+            position: absolute;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎂 Birthday Countdown 🎂</h1>
+        <div class="countdown-grid" id="countdown-grid">
+            <!-- Countdowns will be inserted here by JavaScript -->
+        </div>
+        <div class="back-to-main">
+            <a href="index.html">←メインサイトに戻る</a>
+        </div>
+    </div>
+
+    <script>
+        const members = [
+            {
+                name: "遥介",
+                image: "Qcanvas/yousuke_bustup.jpg",
+                birthday: { month: 4, day: 9 },
+                color: "#4db56a"
+            },
+            {
+                name: "黒",
+                image: "Qcanvas/kuro_bustup.jpg",
+                birthday: { month: 4, day: 29 },
+                color: "#B1063A"
+            },
+            {
+                name: "琥太郎",
+                image: "Qcanvas/kotaro_bustup.jpg",
+                birthday: { month: 12, day: 5 },
+                color: "#ff8c00"
+            },
+            {
+                name: "ルイ",
+                image: "Qcanvas/rui_bustup.jpg",
+                birthday: { month: 2, day: 16 },
+                color: "#D69ABB"
+            },
+            {
+                name: "湊",
+                image: "Qcanvas/minato_bustup.jpg",
+                birthday: { month: 5, day: 24 },
+                color: "#235bc8"
+            }
+        ];
+
+        function getNextBirthday(month, day) {
+            const now = new Date();
+            let year = now.getFullYear();
+            let birthday = new Date(year, month - 1, day);
+            
+            if (birthday < now) {
+                birthday.setFullYear(year + 1);
+            }
+            
+            return birthday;
+        }
+
+        function createCountdown() {
+            const grid = document.getElementById('countdown-grid');
+            grid.innerHTML = '';
+
+            members.forEach(member => {
+                const nextBirthday = getNextBirthday(member.birthday.month, member.birthday.day);
+                const now = new Date();
+                const timeUntil = nextBirthday - now;
+                const days = Math.floor(timeUntil / (1000 * 60 * 60 * 24));
+                
+                const card = document.createElement('div');
+                card.className = 'countdown-card';
+                
+                if (days === 0) {
+                    card.classList.add('birthday-today');
+                    createConfetti();
+                }
+
+                card.innerHTML = `
+                    <img src="${member.image}" alt="${member.name}" class="member-img">
+                    <h2 style="color: ${member.color}">${member.name}</h2>
+                    <div class="birthday-date">${member.birthday.month}月${member.birthday.day}日</div>
+                    <div class="countdown" style="color: ${member.color}">
+                        ${days === 0 ? 
+                            '🎉 Happy Birthday! 🎉' : 
+                            `あと${days}日`}
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function createConfetti() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            const celebration = document.createElement('div');
+            celebration.className = 'celebration';
+            document.body.appendChild(celebration);
+
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                confetti.style.opacity = Math.random();
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                celebration.appendChild(confetti);
+            }
+
+            setTimeout(() => celebration.remove(), 5000);
+        }
+
+        // Initial creation
+        createCountdown();
+
+        // Update every hour
+        setInterval(createCountdown, 1000 * 60 * 60);
+    </script>
+</body>
+</html>

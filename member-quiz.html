@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qcanvas 推しメン診断</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2b5876, #4e4376);
+            background-attachment: fixed;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .quiz-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .question {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .answers {
+            display: grid;
+            gap: 15px;
+        }
+
+        .answer-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        .answer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .result {
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .share-buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .share-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 5px;
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        .share-btn:hover {
+            opacity: 0.8;
+        }
+
+        .twitter-share {
+            background: #1DA1F2;
+        }
+
+        .back-to-main {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .back-to-main a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .back-to-main a:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .progress {
+            height: 4px;
+            background: #eee;
+            margin-bottom: 30px;
+            border-radius: 2px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #2b5876, #4e4376);
+            width: 0;
+            transition: width 0.3s;
+            border-radius: 2px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="quiz-box fade-in">
+            <h1 style="text-align: center; color: #2b5876;">Qcanvas 推しメン診断</h1>
+            <div class="progress">
+                <div class="progress-bar" id="progress"></div>
+            </div>
+            <div id="quiz">
+                <div class="question" id="question"></div>
+                <div class="answers" id="answers"></div>
+            </div>
+            <div class="result" id="result"></div>
+            <div class="share-buttons" id="share-buttons" style="display: none;">
+                <a href="#" class="share-btn twitter-share" id="twitter-share">
+                    Twitterでシェア
+                </a>
+            </div>
+        </div>
+        <div class="back-to-main">
+            <a href="index.html">←メインサイトに戻る</a>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "休日の過ごし方は？",
+                answers: [
+                    { text: "音楽を作ったり聴いたり", points: { yousuke: 3, kuro: 1, kotaro: 1, rui: 2, minato: 2 } },
+                    { text: "友達とショッピング", points: { yousuke: 1, kuro: 2, kotaro: 3, rui: 2, minato: 1 } },
+                    { text: "家でゆっくり過ごす", points: { yousuke: 2, kuro: 3, kotaro: 1, rui: 1, minato: 2 } },
+                    { text: "新しいことに挑戦", points: { yousuke: 1, kuro: 1, kotaro: 2, rui: 3, minato: 2 } }
+                ]
+            },
+            {
+                question: "どんな性格に惹かれる？",
+                answers: [
+                    { text: "優しく包み込んでくれる人", points: { yousuke: 3, kuro: 1, kotaro: 2, rui: 1, minato: 2 } },
+                    { text: "クールだけど実は情熱的な人", points: { yousuke: 1, kuro: 3, kotaro: 1, rui: 2, minato: 2 } },
+                    { text: "明るく元気な人", points: { yousuke: 1, kuro: 1, kotaro: 3, rui: 2, minato: 2 } },
+                    { text: "誠実で頑張り屋な人", points: { yousuke: 2, kuro: 1, kotaro: 1, rui: 1, minato: 3 } }
+                ]
+            },
+            {
+                question: "好きな音楽のジャンルは？",
+                answers: [
+                    { text: "J-POP", points: { yousuke: 3, kuro: 1, kotaro: 2, rui: 1, minato: 2 } },
+                    { text: "ロック", points: { yousuke: 1, kuro: 3, kotaro: 2, rui: 2, minato: 1 } },
+                    { text: "ダンスミュージック", points: { yousuke: 1, kuro: 2, kotaro: 3, rui: 2, minato: 1 } },
+                    { text: "ヒップホップ", points: { yousuke: 1, kuro: 2, kotaro: 1, rui: 3, minato: 2 } }
+                ]
+            },
+            {
+                question: "休日のデートで行きたいのは？",
+                answers: [
+                    { text: "カフェでゆっくり", points: { yousuke: 3, kuro: 2, kotaro: 1, rui: 1, minato: 2 } },
+                    { text: "アミューズメント施設", points: { yousuke: 1, kuro: 1, kotaro: 3, rui: 2, minato: 2 } },
+                    { text: "映画や美術館", points: { yousuke: 2, kuro: 3, kotaro: 1, rui: 1, minato: 2 } },
+                    { text: "海辺の散歩", points: { yousuke: 1, kuro: 1, kotaro: 1, rui: 2, minato: 3 } }
+                ]
+            },
+            {
+                question: "好きな季節は？",
+                answers: [
+                    { text: "春", points: { yousuke: 3, kuro: 2, kotaro: 1, rui: 1, minato: 2 } },
+                    { text: "夏", points: { yousuke: 1, kuro: 1, kotaro: 3, rui: 2, minato: 2 } },
+                    { text: "秋", points: { yousuke: 2, kuro: 3, kotaro: 1, rui: 2, minato: 1 } },
+                    { text: "冬", points: { yousuke: 1, kuro: 2, kotaro: 1, rui: 3, minato: 2 } }
+                ]
+            }
+        ];
+
+        const members = {
+            yousuke: {
+                name: "遥介",
+                color: "#4db56a",
+                image: "Qcanvas/yousuke_bustup.jpg",
+                description: "あなたは遥介と相性バッチリ！✨\n優しく包み込むような癒し系のリーダーがあなたにぴったり。音楽と一緒に心を通わせていきましょう！"
+            },
+            kuro: {
+                name: "黒",
+                color: "#B1063A",
+                image: "Qcanvas/kuro_bustup.jpg",
+                description: "あなたは黒と相性バッチリ！🌹\nクールな外見とは裏腹な情熱的な一面に、きっと心を奪われることでしょう。"
+            },
+            kotaro: {
+                name: "琥太郎",
+                color: "#ff8c00",
+                image: "Qcanvas/kotaro_bustup.jpg",
+                description: "あなたは琥太郎と相性バッチリ！🐯\n明るく元気なダンスリーダーと一緒に、毎日をエネルギッシュに過ごしましょう！"
+            },
+            rui: {
+                name: "ルイ",
+                color: "#D69ABB",
+                image: "Qcanvas/rui_bustup.jpg",
+                description: "あなたはルイと相性バッチリ！🐈‍⬛\n独特な世界観を持つアーティスティックな彼と、新しい景色を見つけていけそう。"
+            },
+            minato: {
+                name: "湊",
+                color: "#235bc8",
+                image: "Qcanvas/minato_bustup.jpg",
+                description: "あなたは湊と相性バッチリ！⚓\n誠実で努力家な最年少メンバーと、互いに高め合える関係を築けそう。"
+            }
+        };
+
+        let currentQuestion = 0;
+        let scores = {
+            yousuke: 0,
+            kuro: 0,
+            kotaro: 0,
+            rui: 0,
+            minato: 0
+        };
+
+        function showQuestion() {
+            const questionEl = document.getElementById('question');
+            const answersEl = document.getElementById('answers');
+            const progressEl = document.getElementById('progress');
+            
+            // Update progress bar
+            progressEl.style.width = `${(currentQuestion / questions.length) * 100}%`;
+
+            if (currentQuestion < questions.length) {
+                const q = questions[currentQuestion];
+                questionEl.textContent = q.question;
+                answersEl.innerHTML = '';
+                
+                q.answers.forEach(answer => {
+                    const button = document.createElement('button');
+                    button.className = 'answer-btn fade-in';
+                    button.textContent = answer.text;
+                    button.onclick = () => selectAnswer(answer.points);
+                    answersEl.appendChild(button);
+                });
+            } else {
+                showResult();
+            }
+        }
+
+        function selectAnswer(points) {
+            for (let member in points) {
+                scores[member] += points[member];
+            }
+            currentQuestion++;
+            showQuestion();
+        }
+
+        function showResult() {
+            const quizEl = document.getElementById('quiz');
+            const resultEl = document.getElementById('result');
+            const shareButtonsEl = document.getElementById('share-buttons');
+            
+            quizEl.style.display = 'none';
+            resultEl.style.display = 'block';
+            shareButtonsEl.style.display = 'block';
+
+            let maxScore = 0;
+            let resultMember = '';
+            for (let member in scores) {
+                if (scores[member] > maxScore) {
+                    maxScore = scores[member];
+                    resultMember = member;
+                }
+            }
+
+            const member = members[resultMember];
+            resultEl.innerHTML = `
+                <h2 style="color: ${member.color}">推しメン診断結果</h2>
+                <img src="${member.image}" alt="${member.name}" class="fade-in">
+                <h3 style="color: ${member.color}">${member.name}</h3>
+                <p>${member.description}</p>
+            `;
+
+            // Set up Twitter share button
+            const twitterShare = document.getElementById('twitter-share');
+            const shareText = `私の推しメンは${member.name}でした！\nQcanvas推しメン診断で相性ピッタリのメンバーを見つけよう！\n#Qcanvas #推しメン診断`;
+            twitterShare.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+        }
+
+        showQuestion();
+    </script>
+</body>
+</html>

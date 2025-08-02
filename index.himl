@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qcanvas</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2b5876, #4e4376);
+            background-attachment: fixed;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(43, 88, 118, 0.1), rgba(78, 67, 118, 0.1));
+            z-index: 0;
+        }
+        
+        .group-name {
+            color: #ffffff;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .nav {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 15px 0;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav a {
+            margin: 0 25px;
+            text-decoration: none;
+            color: #2b5876;
+            font-weight: bold;
+            font-size: 1.1em;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            padding: 5px 0;
+            position: relative;
+        }
+
+        .nav a:hover {
+            color: #4e4376;
+        }
+
+        .nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: #4e4376;
+            transition: width 0.3s ease;
+        }
+
+        .nav a:hover::after {
+            width: 100%;
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        
+        .member-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .member-card {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .member-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .member-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #2b5876, #4e4376);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .member-card:hover::before {
+            opacity: 1;
+        }
+
+        .member-img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .member-card:hover .member-img {
+            transform: scale(1.05);
+        }
+        
+        .news-section {
+            margin-top: 30px;
+        }
+        
+        .news-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+        }
+        
+        .footer {
+            background-color: #2b5876;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .schedule-item {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .profile-info {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .discography {
+            margin-top: 30px;
+        }
+
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .album-card {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .album-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .album-card h3 {
+            color: #2b5876;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        section h2 {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 30px;
+            color: #2b5876;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        section h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #2b5876, #4e4376);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <img src="Qcanvas/Qcanvas_logo.jpg" alt="Qcanvas Logo" style="max-width: 300px; margin-bottom: 15px;">
+        <h1 class="group-name">Qcanvas</h1>
+        <p>〜想像を超えて、創造の先へ〜</p>
+        <p style="font-size: 0.9em; color: #666;">SUMAVEGE PRODUCTION</p>
+    </header>
+    
+    <nav class="nav">
+        <a href="#home">HOME</a>
+        <a href="#news">NEWS</a>
+        <a href="#members">MEMBERS</a>
+        <a href="#schedule">SCHEDULE</a>
+        <a href="#contact">CONTACT</a>
+    </nav>
+    
+    <div class="main-content">
+        <section id="news" class="news-section">
+            <h2>📢 LATEST NEWS</h2>
+            <div class="news-item">
+                <h3>2025年8月1日</h3>
+                <p>2ndアルバム「INFINITY」発売決定！</p>
+            </div>
+            <div class="news-item">
+                <h3>2025年7月30日</h3>
+                <p>全国ライブツアー「Qcanvas Live Tour 2025 -NEXT STAGE-」開催決定！</p>
+            </div>
+            <div class="news-item">
+                <h3>2025年7月27日</h3>
+                <p>ファンクラブイベント「Q-mate Summer Party 2025」開催決定！</p>
+            </div>
+            <div class="news-item">
+                <h3>2025年7月25日</h3>
+                <p>遥介主演ドラマ「青春カレッジ」主題歌をQcanvasが担当決定！</p>
+            </div>
+            <div class="news-item">
+                <h3>2025年7月20日</h3>
+                <p>8月発売の2ndアルバム「INFINITY」収録曲全曲ダイジェスト試聴映像公開！</p>
+            </div>
+            <div class="news-item">
+                <h3>2025年7月15日</h3>
+                <p>琥太郎＆ルイがレギュラーラジオ番組「ダンスナイト」スタート！</p>
+            </div>
+        </section>
+        
+        <section id="members">
+            <h2>👤 MEMBERS</h2>
+            <div class="member-grid">
+                <div class="member-card">
+                    <img src="Qcanvas/yousuke_bustup.jpg" alt="遥介" class="member-img">
+                    <h3>遥介 <span style="color: #4db56a;">🍀</span></h3>
+                    <p style="font-weight: bold;">Leader / Vocal / Composer</p>
+                    <div class="profile-info" style="margin-top: 15px;">
+                        <p>誕生日：4月9日<br>
+                        血液型：O型<br>
+                        出身地：東京都<br>
+                        好きな食べ物：エクレア<br>
+                        一言：「Qcanvasの最年長✨<br>癒し系アイドル目指してます🍀<br>全力で頑張るからみんな応援してくれるよね？<br>俺の魅力知りたくない…？」</p>
+                    </div>
+                </div>
+                <div class="member-card">
+                    <img src="Qcanvas/kuro_bustup.jpg" alt="黒" class="member-img">
+                    <h3>黒 <span style="color: #B1063A;">🌹</span></h3>
+                    <p style="font-weight: bold;">Vocal / Visual</p>
+                    <div class="profile-info" style="margin-top: 15px;">
+                        <p>誕生日：4月29日<br>
+                        血液型：AB型<br>
+                        出身地：北海道<br>
+                        好きな食べ物：ラーメン<br>
+                        一言：「"Hello world"」</p>
+                    </div>
+                </div>
+                <div class="member-card">
+                    <img src="Qcanvas/kotaro_bustup.jpg" alt="琥太郎" class="member-img">
+                    <h3>琥太郎 <span style="color: #ff8c00;">🐯</span></h3>
+                    <p style="font-weight: bold;">Dance Leader / Performance</p>
+                    <div class="profile-info" style="margin-top: 15px;">
+                        <p>誕生日：12月5日<br>
+                        血液型：B型<br>
+                        出身地：大阪府<br>
+                        好きな食べ物：甘いもの(シュークリーム)<br>
+                        一言：「こんにちは！姫野虎太郎と申します🐯<br>
+特技はダンス！5人のメンバーと頑張って行きます！<br>
+応援してくれると嬉しいなー<br>
+これからよろしくお願いします😉」</p>
+                    </div>
+                </div>
+                <div class="member-card">
+                    <img src="Qcanvas/rui_bustup.jpg" alt="ルイ" class="member-img">
+                    <h3>ルイ <span style="color: #D69ABB;">🐈‍⬛</span></h3>
+                    <p style="font-weight: bold;">Rap / Vocal</p>
+                    <div class="profile-info" style="margin-top: 15px;">
+                        <p>誕生日：2月16日<br>
+                        血液型：A型<br>
+                        出身地：福岡県<br>
+                        好きな食べ物：コーラと唐揚げ<br>
+                        一言：「はじめまして✨Qcanvasの味見担当、澄野累です🐈‍⬛<br>
+いっぱい応援してくれると嬉しいな💕<br>
+ひよっこアイドルだから優しくしてね？<br>
+よろしくお願いします💪」</p>
+                    </div>
+                </div>
+                <div class="member-card">                    
+                    <img src="Qcanvas/minato_bustup.jpg" alt="湊" class="member-img">
+                    <h3>湊 <span style="color: #235bc8;">⚓</span></h3>
+                    <p style="font-weight: bold;">Vocal</p>
+                    <div class="profile-info" style="margin-top: 15px;">
+                        <p>誕生日：5月24日<br>
+                        血液型：A型<br>
+                        出身地：神奈川県<br>
+                        好きな食べ物：シーフードパスタ<br>
+                        一言：「メンバー最年少の湊です⚓<br>
+至らない点もあるかと思いますが、<br>
+誠心誠意頑張っていきたいです！<br>
+応援よろしくお願いします😊」</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="schedule" class="schedule-section">
+            <h2>📅 SCHEDULE</h2>
+            <div class="schedule-grid">
+                <div class="schedule-item">
+                    <p>『Qcanvas Live Tour 2025 -NEXT STAGE-』</p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <a href="live2025.html" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #2b5876, #4e4376); color: white; text-decoration: none; border-radius: 5px; transition: transform 0.3s;">
+                            🎫 ツアー特設サイトはこちら
+                        </a>
+                    </div>
+                    <ul>
+                        <li>8月10日(日) 札幌・真駒内セキスイアイスアリーナ</li>
+                        <li>8月17日(日) 福岡・マリンメッセ</li>
+                        <li>8月24日(日) 大阪・大阪城ホール</li>
+                        <li>8月31日(日) 名古屋・ポートメッセ</li>
+                        <li>9月7日(日) 東京・武道館</li>
+                    </ul>
+                </div>
+                <div class="schedule-item">
+                    <h3>TV出演情報</h3>
+                    <ul>
+                        <li>7月30日(水) 19:00- 「MUSIC STATION」- 新曲「INFINITY」TV初披露！</li>
+                        <li>8月2日(土) 11:00- 「メロディックライフ」- メンバー全員出演</li>
+                        <li>8月5日(火) 23:00- 「アーティストNight」- 特集『次世代を担うボーイズグループ特集』</li>
+                    </ul>
+                </div>
+                <div class="schedule-item">
+                    <h3>メディア出演情報</h3>
+                    <h4 style="color: #2b5876; margin: 15px 0 10px;">📺 ドラマ</h4>
+                    <ul>
+                        <li>2025年10月期連続ドラマ「青春カレッジ」（日曜21:00-）<br>
+                        ＜遥介＞主演：新入生・天野空役</li>
+                        <li>2025年7月期連続ドラマ「スポットライト」（水曜22:00-）<br>
+                        ＜黒＞レギュラー出演：若手ダンサー役</li>
+                    </ul>
+                    
+                    <h4 style="color: #2b5876; margin: 15px 0 10px;">🎬 映画</h4>
+                    <ul>
+                        <li>2025年12月公開「DREAM MAKER」<br>
+                        ＜Qcanvas＞グループ初の主演映画！5人組ダンスボーカルグループの青春ストーリー</li>
+                    </ul>
+
+                    <h4 style="color: #2b5876; margin: 15px 0 10px;">📚 雑誌連載</h4>
+                    <ul>
+                        <li>「PURE BOYS」毎月10日発売<br>
+                        連載「Q-timeーQcanvasの素顔に密着」</li>
+                        <li>「Star★HITS」毎月25日発売<br>
+                        琥太郎＆ルイによる連載「僕らのダンスレッスン」</li>
+                        <li>「Monthly IDOL」毎月1日発売<br>
+                        湊の連載「初心者でもできる！ボーカルレッスン」</li>
+                    </ul>
+
+                    <h4 style="color: #2b5876; margin: 15px 0 10px;">📻 ラジオ</h4>
+                    <ul>
+                        <li>「Qcanvas のオールナイトQ」<br>
+                        毎週金曜日 25:00-26:00 放送中</li>
+                        <li>「琥太郎・ルイの『ダンスナイト』」<br>
+                        毎週水曜日 22:00-22:30 放送中</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="discography" class="discography">
+            <h2>💿 DISCOGRAPHY</h2>
+            <div class="album-grid">
+                <div class="album-card">
+                    <h3>2nd Album「INFINITY」</h3>
+                    <p>2025年8月21日発売</p>
+                    <p>¥3,300(税込)</p>
+                    <p>収録曲数：12曲</p>
+                    <div style="text-align: left; margin-top: 10px; font-size: 0.9em;">
+                        <p>【収録曲】</p>
+                        1. INFINITY<br>
+                        2. Summer Paradise<br>
+                        3. Dancing in the Moonlight<br>
+                        4. Your Colors<br>
+                        5. BROTHERS<br>
+                        6. Break the Wall<br>
+                        7. 未完成なストーリー<br>
+                        8. Q-TIME<br>
+                        9. Forever Young<br>
+                        10. Next Stage<br>
+                        11. 夜明けの約束<br>
+                        12. Our Canvas
+                    </div>
+                </div>
+                <div class="album-card">
+                    <h3>1st Album「CANVAS」</h3>
+                    <p>2024年10月10日発売</p>
+                    <p>¥3,300(税込)</p>
+                    <p>収録曲数：10曲</p>
+                    <div style="text-align: left; margin-top: 10px; font-size: 0.9em;">
+                        <p>【収録曲】</p>
+                        1. Draw Your Dream<br>
+                        2. CANVAS<br>
+                        3. START LINE<br>
+                        4. Blue Sky<br>
+                        5. 想像の先へ<br>
+                        6. Midnight City<br>
+                        7. One More Time<br>
+                        8. 君とのStory<br>
+                        9. POWER<br>
+                        10. Always with Q-mate
+                    </div>
+                </div>
+                <div class="album-card">
+                    <h3>デビューシングル「Draw Your Dream」</h3>
+                    <p>2024年5月5日発売</p>
+                    <p>¥1,200(税込)</p>
+                    <p>オリコン初登場3位獲得！</p>
+                    <div style="text-align: left; margin-top: 10px; font-size: 0.9em;">
+                        <p>【収録曲】</p>
+                        1. Draw Your Dream<br>
+                        2. First Step<br>
+                        3. Draw Your Dream (Instrumental)<br>
+                        4. First Step (Instrumental)
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="awards" style="margin-top: 30px;">
+            <h2>🏆 AWARDS</h2>
+            <div style="background-color: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <div style="display: grid; gap: 20px;">
+                    <div>
+                        <h3 style="color: #2b5876;">2024年</h3>
+                        <ul>
+                            <li>第66回日本レコード大賞 新人賞</li>
+                            <li>第75回NHK紅白歌合戦 初出場</li>
+                            <li>第32回年間アーティストアワード ベストルーキー賞</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 style="color: #2b5876;">2025年</h3>
+                        <ul>
+                            <li>第40回日本ゴールドディスク大賞 ベストニューアーティスト</li>
+                            <li>第29回MUSIC AWARD 注目のパフォーマー賞</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="goods" style="margin-top: 30px;">
+            <h2>🛍️ GOODS</h2>
+            <div class="schedule-grid">
+                <div class="schedule-item">
+                    <h3>NEW GOODS</h3>
+                    <h4 style="color: #2b5876; margin: 15px 0 10px;">INFINITY Collection</h4>
+                    <ul>
+                        <li>メンバー別アクリルスタンド ¥1,800</li>
+                        <li>ツアーTシャツ ¥3,800</li>
+                        <li>マフラータオル ¥2,000</li>
+                        <li>トレーディングフォトカード（全25種） ¥500</li>
+                        <li>ペンライト ver.2.0 ¥3,800</li>
+                    </ul>
+                </div>
+                <div class="schedule-item">
+                    <h3>OFFICIAL FANCLUB GOODS</h3>
+                    <ul>
+                        <li>Q-mate限定メンバーズカード</li>
+                        <li>オリジナルパーカー</li>
+                        <li>バースデーフォトブック（メンバー別）</li>
+                        <li>オリジナルスマホケース</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="sns" style="margin-top: 30px;">
+            <h2>📱 SOCIAL MEDIA</h2>
+            <div style="background-color: white; padding: 20px; border-radius: 8px; margin-top: 20px; text-align: center;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                    <div>
+                        <h3 style="color: #2b5876;">Official</h3>
+                        <p>Twitter: @Qcanvas_official<br>
+                        Instagram: @qcanvas_official<br>
+                        YouTube: Qcanvas Official<br>
+                        TikTok: @qcanvas_official</p>
+                    </div>
+                    <div>
+                        <h3 style="color: #2b5876;">Staff</h3>
+                        <p>Twitter: @Qcanvas_staff<br>
+                        Instagram: @qcanvas_staff</p>
+                    </div>
+                    <div>
+                        <h3 style="color: #2b5876;">Fan Club</h3>
+                        <p>Twitter: @Qmate_official<br>
+                        Instagram: @qmate_official</p>
+                    </div>
+                </div>
+                <p style="margin-top: 20px; font-size: 0.9em; color: #666;">
+                    ※メンバー個人のSNSアカウントはありません。<br>
+                    公式アカウントのみフォローをお願いいたします。
+                </p>
+            </div>
+        </section>
+
+        <section id="profile" style="margin-top: 30px;">
+            <h2>ℹ️ GROUP PROFILE</h2>
+            <div style="background-color: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <p>2020年5月5日、サマベジプロダクションより待望のデビュー。<br>
+                個性的な5人のメンバーが織りなす圧倒的なパフォーマンスと、遥介が手掛ける楽曲の数々で、デビュー以来、着実にファンを増やしている次世代ボーイズグループ。<br>
+                グループ名の「Qcanvas」には、"Question"と"Canvas"を組み合わせた造語で、「常識に疑問を投げかけ、白いキャンバスに自分たちだけの色を描いていく」という意味が込められている。</p>
+                <div class="profile-info">
+                    <p>🎵 ファンクラブ名：Q-mate<br>
+                    🎨 グループカラー：コバルトブルー<br>
+                    📍 事務所：サマベジプロダクション<br>
+                    🎤 レーベル：SUMAVEGE MUSIC</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="fan-content" style="margin-top: 30px;">
+            <h2>🌟 FAN CONTENTS</h2>
+            <div style="background-color: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <a href="member-quiz.html" style="text-decoration: none;">
+                        <div style="background: linear-gradient(135deg, #2b5876, #4e4376); padding: 20px; border-radius: 8px; text-align: center; color: white; transition: transform 0.3s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            <h3>💖 推しメン診断</h3>
+                            <p>あなたに最も相性のいいメンバーを診断！</p>
+                        </div>
+                    </a>
+                    <a href="birthday.html" style="text-decoration: none;">
+                        <div style="background: linear-gradient(135deg, #2b5876, #4e4376); padding: 20px; border-radius: 8px; text-align: center; color: white; transition: transform 0.3s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            <h3>🎂 Birthday Countdown</h3>
+                            <p>メンバーの誕生日までのカウントダウン！</p>
+                        </div>
+                    </a>
+                    <a href="#" id="voice-messages" style="text-decoration: none;">
+                        <div style="background: linear-gradient(135deg, #2b5876, #4e4376); padding: 20px; border-radius: 8px; text-align: center; color: white; transition: transform 0.3s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            <h3>🎧 音声メッセージ</h3>
+                            <p>メンバーからの音声メッセージをチェック！</p>
+                        </div>
+                    </a>
+                    <a href="#" id="fan-art" style="text-decoration: none;">
+                        <div style="background: linear-gradient(135deg, #2b5876, #4e4376); padding: 20px; border-radius: 8px; text-align: center; color: white; transition: transform 0.3s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            <h3>🎨 ファンアート</h3>
+                            <p>ファンの皆様の素敵な作品を投稿＆共有！</p>
+                        </div>
+                    </a>
+                    <a href="#" id="dance-tutorial" style="text-decoration: none;">
+                        <div style="background: linear-gradient(135deg, #2b5876, #4e4376); padding: 20px; border-radius: 8px; text-align: center; color: white; transition: transform 0.3s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            <h3>💃 ダンスチュートリアル</h3>
+                            <p>メンバーと一緒に踊ろう！</p>
+                        </div>
+                    </a>
+                    <a href="live2025.html" style="text-decoration: none;">
+                        <div style="background: linear-gradient(135deg, #2b5876, #4e4376); padding: 20px; border-radius: 8px; text-align: center; color: white; transition: transform 0.3s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            <h3>🎤 LIVE TOUR 2025</h3>
+                            <p>ツアー特設ページはこちら！</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="stamp-rally" style="margin-top: 30px;">
+            <h2>🎯 デジタルスタンプラリー</h2>
+            <div style="background-color: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h3 style="color: #2b5876;">現在の達成度: 3/10個</h3>
+                    <div class="progress-bar" style="background: #eee; height: 20px; border-radius: 10px; overflow: hidden; margin: 15px auto; max-width: 500px;">
+                        <div style="width: 30%; height: 100%; background: linear-gradient(90deg, #2b5876, #4e4376);"></div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
+                    <div class="stamp-item" style="background: #f5f5f5; padding: 20px; border-radius: 8px; text-align: center; cursor: pointer; transition: transform 0.3s;">
+                        <h4>INFINITY</h4>
+                        <div style="width: 80px; height: 80px; background: #fff; border-radius: 50%; margin: 10px auto; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                            ✓
+                        </div>
+                        <p>アルバム全曲視聴</p>
+                    </div>
+                    <div class="stamp-item" style="background: #f5f5f5; padding: 20px; border-radius: 8px; text-align: center; cursor: pointer; transition: transform 0.3s;">
+                        <h4>Birthday</h4>
+                        <div style="width: 80px; height: 80px; background: #fff; border-radius: 50%; margin: 10px auto; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                            ✓
+                        </div>
+                        <p>誕生日カウントダウン訪問</p>
+                    </div>
+                    <div class="stamp-item" style="background: #f5f5f5; padding: 20px; border-radius: 8px; text-align: center; cursor: pointer; transition: transform 0.3s;">
+                        <h4>Quiz Master</h4>
+                        <div style="width: 80px; height: 80px; background: #fff; border-radius: 50%; margin: 10px auto; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                            ✓
+                        </div>
+                        <p>推しメン診断クリア</p>
+                    </div>
+                    <!-- 未獲得のスタンプ -->
+                    <div class="stamp-item" style="background: #f5f5f5; padding: 20px; border-radius: 8px; text-align: center; opacity: 0.5;">
+                        <h4>Dance Star</h4>
+                        <div style="width: 80px; height: 80px; background: #fff; border-radius: 50%; margin: 10px auto; display: flex; align-items: center; justify-content: center;">
+                            ?
+                        </div>
+                        <p>ダンスチュートリアル参加</p>
+                    </div>
+                    <div class="stamp-item" style="background: #f5f5f5; padding: 20px; border-radius: 8px; text-align: center; opacity: 0.5;">
+                        <h4>Art Gallery</h4>
+                        <div style="width: 80px; height: 80px; background: #fff; border-radius: 50%; margin: 10px auto; display: flex; align-items: center; justify-content: center;">
+                            ?
+                        </div>
+                        <p>ファンアート投稿</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px; color: #666;">
+                    <p>すべてのスタンプを集めると特別な壁紙がもらえます！</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="member-qa" style="margin-top: 30px;">
+            <h2>❓ メンバーQ&A</h2>
+            <div style="background-color: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <div class="qa-container">
+                    <div class="qa-filter" style="margin-bottom: 20px; text-align: center;">
+                        <button style="margin: 5px; padding: 8px 15px; border: none; border-radius: 20px; background: #2b5876; color: white; cursor: pointer;" onclick="filterQA('all')">全て</button>
+                        <button style="margin: 5px; padding: 8px 15px; border: none; border-radius: 20px; background: #4db56a; color: white; cursor: pointer;" onclick="filterQA('遥介')">遥介</button>
+                        <button style="margin: 5px; padding: 8px 15px; border: none; border-radius: 20px; background: #B1063A; color: white; cursor: pointer;" onclick="filterQA('黒')">黒</button>
+                        <button style="margin: 5px; padding: 8px 15px; border: none; border-radius: 20px; background: #ff8c00; color: white; cursor: pointer;" onclick="filterQA('琥太郎')">琥太郎</button>
+                        <button style="margin: 5px; padding: 8px 15px; border: none; border-radius: 20px; background: #D69ABB; color: white; cursor: pointer;" onclick="filterQA('ルイ')">ルイ</button>
+                        <button style="margin: 5px; padding: 8px 15px; border: none; border-radius: 20px; background: #235bc8; color: white; cursor: pointer;" onclick="filterQA('湊')">湊</button>
+                    </div>
+                    <div class="qa-list">
+                        <div class="qa-item" data-member="遥介" style="margin-bottom: 15px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+                            <div class="qa-question" style="font-weight: bold; color: #4db56a;">
+                                Q: 作曲をする時に意識していることは？
+                            </div>
+                            <div class="qa-answer" style="margin-top: 10px;">
+                                メンバーそれぞれの個性が活きる曲作りを心がけています。特にサビは5人の声が調和するように気を付けていますね。あとは、ライブで盛り上がれる曲を作りたいので、お客さんと一緒に歌える部分を必ず入れるようにしています！
+                            </div>
+                        </div>
+                        <div class="qa-item" data-member="遥介" style="margin-bottom: 15px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+                            <div class="qa-question" style="font-weight: bold; color: #4db56a;">
+                                Q: リーダーとしてメンバーをまとめる秘訣は？
+                            </div>
+                            <div class="qa-answer" style="margin-top: 10px;">
+                                メンバー一人一人の個性を大切にすることですね。特に黒とは正反対の性格なので、お互いの良さを引き出し合えるように心がけています。メンバーの意見をしっかり聞いて、その上で最適な方向へ導くことを意識しています✨
+                            </div>
+                        </div>
+                        <div class="qa-item" data-member="黒" style="margin-bottom: 15px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+                            <div class="qa-question" style="font-weight: bold; color: #B1063A;">
+                                Q: パフォーマンスで気を付けていることは？
+                            </div>
+                            <div class="qa-answer" style="margin-top: 10px;">
+                                常に全力で。それだけです。
+                            </div>
+                        </div>
+                        <div class="qa-item" data-member="黒" style="margin-bottom: 15px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+                            <div class="qa-question" style="font-weight: bold; color: #B1063A;">
+                                Q: 最近ハマっていることは？
+                            </div>
+                            <div class="qa-answer" style="margin-top: 10px;">
+                                深夜のコンビニ巡り。特に新商品のカップ麺を探すのが趣味です。
+                            </div>
+                        </div>
+                        <div class="qa-item" data-member="琥太郎" style="margin-bottom: 15px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+                            <div class="qa-question" style="font-weight: bold; color: #ff8c00;">
+                                Q: ダンスリーダーとして心がけていることは？
+                            </div>
+                            <div class="qa-answer" style="margin-top: 10px;">
+                                みんなで楽しく練習することかな！🐯 時には厳しくなることもあるけど、基本的にはポジティブな雰囲気作りを心がけています。特に湊くんは真面目すぎるから、たまにはリラックスしてって言ってます（笑）
+                            </div>
+                        </div>
+                        <div class="qa-item" data-member="琥太郎" style="margin-bottom: 15px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+                            <div class="qa-question" style="font-weight: bold; color: #ff8c00;">
+                                Q: ファンの方へのメッセージは？
+                            </div>
+                            <div class="qa-answer" style="margin-top: 10px;">
+                                いつも応援ありがとうございます！🐯 みなさんの笑顔が僕たちの原動力です。これからもパフォーマンスで感動を届けられるように頑張ります！あ、あとライブでみんなで踊れる振り付けも増やしていくので楽しみにしていてください！
+                            </div>
+                        </div>
+                        <div class="qa-item" data-member="ルイ" style="margin-bottom: 15px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+                            <div class="qa-question" style="font-weight: bold; color: #D69ABB;">
+                                Q: ラップの作詞で意識していることは？
+                            </div>
+                            <div class="qa-answer" style="margin-top: 10px;">
+                                言葉選びには特にこだわってます🐈‍⬛ 韻を踏むのは基本として、一つ一つの言葉に深い意味を込めるようにしています。時には暗喩や比喩を使って、聴いてくれる人に想像の余地を残すような詞を書きたいですね。
+                            </div>
+                        </div>
+                        <div class="qa-item" data-member="ルイ" style="margin-bottom: 15px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+                            <div class="qa-question" style="font-weight: bold; color: #D69ABB;">
+                                Q: 休日の過ごし方は？
+                            </div>
+                            <div class="qa-answer" style="margin-top: 10px;">
+                                家でゲームしたり、新しい音楽聴いたり...🎮 あとは作詞のインスピレーションを得るために、カフェで人々の会話を観察したりしています。ちょっと怪しいかも...？（笑）
+                            </div>
+                        </div>
+                        <div class="qa-item" data-member="湊" style="margin-bottom: 15px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+                            <div class="qa-question" style="font-weight: bold; color: #235bc8;">
+                                Q: 最年少メンバーとしての苦労は？
+                            </div>
+                            <div class="qa-answer" style="margin-top: 10px;">
+                                年上のメンバーに迷惑をかけないように、常に気を配っています⚓ でも、みんなが優しく接してくれるので、本当に感謝しています。特に遥介さんは、困ったときにいつも相談に乗ってくれます。
+                            </div>
+                        </div>
+                        <div class="qa-item" data-member="湊" style="margin-bottom: 15px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+                            <div class="qa-question" style="font-weight: bold; color: #235bc8;">
+                                Q: 将来の目標は？
+                            </div>
+                            <div class="qa-answer" style="margin-top: 10px;">
+                                まずは自分の歌唱力をもっと高めていきたいです⚓ 遥介さんの作る曲をより良い形で届けられるように...。そして、いつか作詞にも挑戦してみたいです。Q-mateのみなさんに、心から共感してもらえる歌詞を書けるように頑張ります！
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="qmate-points" style="margin-top: 30px;">
+            <h2>💎 Q-mate ポイント</h2>
+            <div style="background-color: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div class="points-info" style="text-align: center;">
+                        <h3 style="color: #2b5876;">現在のポイント</h3>
+                        <div style="font-size: 2em; color: #4e4376; margin: 15px 0;">1,250 pt</div>
+                        <p>次のランクまで: 750 pt</p>
+                        <div class="progress-bar" style="background: #eee; height: 20px; border-radius: 10px; overflow: hidden;">
+                            <div style="width: 62.5%; height: 100%; background: linear-gradient(90deg, #2b5876, #4e4376);"></div>
+                        </div>
+                    </div>
+                    <div class="points-rewards">
+                        <h3 style="color: #2b5876;">ポイント交換特典</h3>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin-bottom: 10px;">
+                                <span style="background: #f5f5f5; padding: 5px 10px; border-radius: 15px;">500 pt</span>
+                                デジタルサイン入り壁紙
+                            </li>
+                            <li style="margin-bottom: 10px;">
+                                <span style="background: #f5f5f5; padding: 5px 10px; border-radius: 15px;">1,000 pt</span>
+                                バースデーメッセージ動画
+                            </li>
+                            <li style="margin-bottom: 10px;">
+                                <span style="background: #f5f5f5; padding: 5px 10px; border-radius: 15px;">2,000 pt</span>
+                                限定オンラインミート＆グリート
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="fanclub" style="margin-top: 30px;">
+            <h2>👥 FAN CLUB</h2>
+            <div style="background-color: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div>
+                        <h3 style="color: #2b5876;">Q-mate会員特典</h3>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin-bottom: 10px;">✨ ファンクラブ限定イベント参加権</li>
+                            <li style="margin-bottom: 10px;">🎫 コンサートチケット先行予約権</li>
+                            <li style="margin-bottom: 10px;">🎁 誕生日メッセージカード</li>
+                            <li style="margin-bottom: 10px;">📱 会員限定コンテンツ配信</li>
+                            <li style="margin-bottom: 10px;">🛍️ オリジナルグッズ優先販売</li>
+                            <li style="margin-bottom: 10px;">📧 メールマガジン配信</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 style="color: #2b5876;">入会方法</h3>
+                        <div class="profile-info">
+                            <p>【年会費】<br>
+                            新規入会：¥5,500（税込）<br>
+                            継続年会費：¥4,400（税込）</p>
+                            <p>【特典期間】<br>
+                            入会日から1年間有効</p>
+                            <p>【入会特典】<br>
+                            ・会員証<br>
+                            ・オリジナルグッズ<br>
+                            ・メンバー直筆メッセージカード(ランダム1枚)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="color-code" style="margin-top: 30px;">
+            <h2>🎨 COLOR CODE</h2>
+            <div style="background-color: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: center;">
+                    <div>
+                        <h3>遥介 <span style="color: #4db56a;">🍀</span></h3>
+                        <div style="background-color: #4db56a; width: 50px; height: 50px; border-radius: 50%; margin: 10px auto;"></div>
+                        <p style="color: #4db56a;">#4db56a</p>
+                    </div>
+                    <div>
+                        <h3>黒 <span style="color: #B1063A;">🌹</span></h3>
+                        <div style="background-color: #B1063A; width: 50px; height: 50px; border-radius: 50%; margin: 10px auto;"></div>
+                        <p style="color: #B1063A;">#B1063A</p>
+                    </div>
+                    <div>
+                        <h3>琥太郎 <span style="color: #ff8c00;">🐯</span></h3>
+                        <div style="background-color: #ff8c00; width: 50px; height: 50px; border-radius: 50%; margin: 10px auto;"></div>
+                        <p style="color: #ff8c00;">#ff8c00</p>
+                    </div>
+                    <div>
+                        <h3>ルイ <span style="color: #D69ABB;">🐈‍⬛</span></h3>
+                        <div style="background-color: #D69ABB; width: 50px; height: 50px; border-radius: 50%; margin: 10px auto;"></div>
+                        <p style="color: #D69ABB;">#D69ABB</p>
+                    </div>
+                    <div>
+                        <h3>湊 <span style="color: #235bc8;">⚓</span></h3>
+                        <div style="background-color: #235bc8; width: 50px; height: 50px; border-radius: 50%; margin: 10px auto;"></div>
+                        <p style="color: #235bc8;">#235bc8</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <h3>GROUP COLOR</h3>
+                    <div style="background-color: #2b5876; width: 50px; height: 50px; border-radius: 50%; margin: 10px auto;"></div>
+                    <p style="color: #2b5876;">#2b5876</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" style="margin-top: 30px;">
+            <h2>✉️ CONTACT</h2>
+            <div style="background-color: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <div style="max-width: 600px; margin: 0 auto;">
+                    <h3 style="color: #2b5876;">お問い合わせフォーム</h3>
+                    <p>下記の内容をご確認の上、フォームにご入力ください。</p>
+                    <div style="margin-top: 20px;">
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; color: #2b5876;">お名前 *</label>
+                            <input type="text" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" >
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; color: #2b5876;">メールアドレス *</label>
+                            <input type="email" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" >
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; color: #2b5876;">お問い合わせ種別 *</label>
+                            <select style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" >
+                                <option>ファンクラブについて</option>
+                                <option>ライブ・イベントについて</option>
+                                <option>商品について</option>
+                                <option>取材・メディア関連</option>
+                                <option>その他</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; color: #2b5876;">お問い合わせ内容 *</label>
+                            <textarea style="width: 100%; height: 150px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" disabled></textarea>
+                        </div>
+                        <button style="background-color: #2b5876; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: not-allowed; width: 100%;" disabled>送信する</button>
+                    </div>
+                    <div style="margin-top: 30px; padding: 15px; background-color: #f5f5f5; border-radius: 4px;">
+                        <h4 style="color: #2b5876; margin-top: 0;">その他のお問い合わせ先</h4>
+                        <p>🏢 サマベジプロダクション</p>
+                        <p>📞 ファンクラブに関するお問い合わせ<br>
+                        TEL: 0120-xxx-xxx（平日10:00～18:00）</p>
+                        <p>📧 ビジネスに関するお問い合わせ<br>
+                        E-mail: business@sumavege-prod.com</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <footer class="footer">
+        <p>© 2025 Qcanvas / SUMAVEGE PRODUCTION All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // メンバーカラーエフェクト
+        const memberColors = {
+            '遥介': { color: '#4db56a', gradient: 'linear-gradient(135deg, #4db56a, #2b5876)' },
+            '黒': { color: '#B1063A', gradient: 'linear-gradient(135deg, #B1063A, #2b5876)' },
+            '琥太郎': { color: '#ff8c00', gradient: 'linear-gradient(135deg, #ff8c00, #2b5876)' },
+            'ルイ': { color: '#D69ABB', gradient: 'linear-gradient(135deg, #D69ABB, #2b5876)' },
+            '湊': { color: '#235bc8', gradient: 'linear-gradient(135deg, #235bc8, #2b5876)' }
+        };
+
+        // メンバーカード上でのホバーエフェクト
+        document.querySelectorAll('.member-card').forEach(card => {
+            const memberName = card.querySelector('h3').textContent.split(' ')[0];
+            
+            card.addEventListener('mouseenter', () => {
+                if (memberColors[memberName]) {
+                    document.body.style.background = memberColors[memberName].gradient;
+                    document.body.style.transition = 'background 0.5s';
+                }
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                document.body.style.background = 'linear-gradient(135deg, #2b5876, #4e4376)';
+            });
+        });
+
+        // Q&Aフィルター機能
+        function filterQA(member) {
+            const items = document.querySelectorAll('.qa-item');
+            items.forEach(item => {
+                if (member === 'all' || item.dataset.member === member) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // スタンプラリー効果
+        document.querySelectorAll('.stamp-item').forEach(stamp => {
+            if (!stamp.style.opacity || stamp.style.opacity === '1') {
+                stamp.addEventListener('mouseenter', () => {
+                    stamp.style.transform = 'scale(1.05)';
+                });
+                
+                stamp.addEventListener('mouseleave', () => {
+                    stamp.style.transform = 'scale(1)';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

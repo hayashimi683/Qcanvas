@@ -1,10 +1,10 @@
 // メンバーカラーとグラデーションの定義
 const memberColors = {
-    yousuke: { color: '#4db56a', gradient: 'linear-gradient(135deg, #4db56a, #2b5876)' },
-    kuro: { color: '#B1063A', gradient: 'linear-gradient(135deg, #B1063A, #2b5876)' },
-    kotaro: { color: '#ff8c00', gradient: 'linear-gradient(135deg, #ff8c00, #2b5876)' },
-    rui: { color: '#D69ABB', gradient: 'linear-gradient(135deg, #D69ABB, #2b5876)' },
-    minato: { color: '#235bc8', gradient: 'linear-gradient(135deg, #235bc8, #2b5876)' }
+    yousuke: { color: '#4db56a', rgb: '77,181,106', gradient: 'linear-gradient(135deg, #4db56a, #2b5876)' },
+    kuro: { color: '#B1063A', rgb: '177,6,58', gradient: 'linear-gradient(135deg, #B1063A, #2b5876)' },
+    kotaro: { color: '#ff8c00', rgb: '255,140,0', gradient: 'linear-gradient(135deg, #ff8c00, #2b5876)' },
+    rui: { color: '#D69ABB', rgb: '214,154,187', gradient: 'linear-gradient(135deg, #D69ABB, #2b5876)' },
+    minato: { color: '#235bc8', rgb: '35,91,200', gradient: 'linear-gradient(135deg, #235bc8, #2b5876)' }
 };
 
 // ペンライトカーソルエフェクト

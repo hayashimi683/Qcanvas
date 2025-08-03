@@ -67,6 +67,13 @@ body {
     transition: background 0.5s;
 }
 
+/* スマートフォン向けのメンバーカラー最適化 */
+@media screen and (max-width: 768px) {
+    body[data-member-color] {
+        background-color: rgba(var(--member-color-rgb), 0.3) !important;
+    }
+}
+
 /* Q&Aアコーディオン */
 .qa-item {
     margin-bottom: 10px;

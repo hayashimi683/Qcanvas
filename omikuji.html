@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qcanvas おみくじ</title>
+    <link rel="stylesheet" href="css/effects.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2b5876, #4e4376);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(43, 88, 118, 0.1), rgba(78, 67, 118, 0.1));
+            z-index: 0;
+        }
+        
+        .header h1 {
+            margin: 0;
+            color: #2b5876;
+            font-size: 2.5em;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .nav {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .nav a {
+            color: #2b5876;
+            text-decoration: none;
+            margin: 0 15px;
+            padding: 8px 20px;
+            border-radius: 20px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .nav a:hover {
+            background-color: #2b5876;
+            color: white;
+        }
+        
+        .container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+        
+        .omikuji-box {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .omikuji-container {
+            position: relative;
+        }
+        
+        .omikuji-box-image {
+            width: 200px;
+            height: 300px;
+            margin: 0 auto 30px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .omikuji-box-image:hover {
+            transform: scale(1.05);
+        }
+        
+        .box-outer {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #8B4513 0%, #654321 100%);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .box-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: linear-gradient(180deg, #A0522D 0%, #8B4513 100%);
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .box-pattern {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 4em;
+            color: rgba(255, 215, 0, 0.3);
+            font-weight: bold;
+        }
+        
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            10% { transform: translateX(-10px) rotate(-5deg); }
+            20% { transform: translateX(10px) rotate(5deg); }
+            30% { transform: translateX(-10px) rotate(-5deg); }
+            40% { transform: translateX(10px) rotate(5deg); }
+            50% { transform: translateX(-10px) rotate(-5deg); }
+            60% { transform: translateX(10px) rotate(5deg); }
+            70% { transform: translateX(-10px) rotate(-5deg); }
+            80% { transform: translateX(10px) rotate(5deg); }
+            90% { transform: translateX(-10px) rotate(-5deg); }
+        }
+        
+        .stick {
+            position: absolute;
+            width: 8px;
+            height: 120px;
+            background: linear-gradient(90deg, #D2691E 0%, #8B4513 50%, #D2691E 100%);
+            border-radius: 4px;
+            bottom: -140px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: all 0.5s ease-out;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .stick.show {
+            bottom: -60px;
+            opacity: 1;
+        }
+        
+        .result-card {
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #fff9e6 0%, #ffe6f0 100%);
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.5s ease-out;
+        }
+        
+        .result-card.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .fortune-title {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 0 0 20px 0;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f, #4ecdc4, #a78bfa);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient 3s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .fortune-message {
+            font-size: 1.2em;
+            color: #333;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        
+        .fortune-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .fortune-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .fortune-item-title {
+            font-weight: bold;
+            color: #2b5876;
+            margin-bottom: 5px;
+        }
+        
+        .fortune-item-value {
+            color: #666;
+        }
+        
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            margin: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2b5876, #4e4376);
+            color: white;
+            box-shadow: 0 5px 15px rgba(43, 88, 118, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(43, 88, 118, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(255, 107, 107, 0.4);
+        }
+        
+        .instruction {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        
+        @media (max-width: 600px) {
+            .omikuji-box {
+                padding: 30px 20px;
+            }
+            
+            .fortune-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎊 Qcanvas おみくじ 🎊</h1>
+    </div>
+    
+    <div class="nav">
+        <a href="index.html">ホーム</a>
+        <a href="omikuji.html">おみくじ</a>
+        <a href="member-quiz.html">メンバークイズ</a>
+        <a href="qmate.html">Qmate診断</a>
+    </div>
+    
+    <div class="container">
+        <div class="omikuji-box">
+            <div class="omikuji-container">
+                <p class="instruction" id="instruction">おみくじ箱をクリックして運勢を引いてね！</p>
+                
+                <div class="omikuji-box-image" id="omikujiBox" onclick="drawOmikuji()">
+                    <div class="box-outer">
+                        <div class="box-top"></div>
+                        <div class="box-pattern">御</div>
+                    </div>
+                    <div class="stick" id="stick"></div>
+                </div>
+                
+                <div class="result-card" id="resultCard">
+                    <h2 class="fortune-title" id="fortuneTitle"></h2>
+                    <p class="fortune-message" id="fortuneMessage"></p>
+                    
+                    <div class="fortune-details" id="fortuneDetails"></div>
+                </div>
+                
+                <div>
+                    <button class="btn btn-secondary" id="retryBtn" onclick="reset()" style="display: none;">
+                        もう一度引く
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/effects.js"></script>
+    <script>
+        const fortunes = [
+            {
+                title: "大吉",
+                message: "最高の運勢です！今年はQcanvasと共に素晴らしい一年になるでしょう✨",
+                lucky: {
+                    item: "ペンライト",
+                    color: "レインボー",
+                    song: "キャンバスに描いて",
+                    member: "全員！"
+                }
+            },
+            {
+                title: "超大吉",
+                message: "奇跡レベルの運勢！今日は琥太郎のダンスが完璧にキマる日！あなたもノリノリで行こう🕺✨",
+                lucky: {
+                    item: "琥太郎のタオル（汗付き）",
+                    color: "オレンジ🐯",
+                    song: "ダンスダンスレボリューション",
+                    member: "琥太郎（テンションMAX）"
+                }
+            },
+            {
+                title: "中吉",
+                message: "良い運勢です！ライブに参加すると更に運気アップ！🎵",
+                lucky: {
+                    item: "タオル",
+                    color: "青",
+                    song: "青春スケッチ",
+                    member: "推しメン"
+                }
+            },
+            {
+                title: "黒吉",
+                message: "クールに決めろ！今日のあなたは黒のようにミステリアス。無口なふりして実は饒舌になるかも🌹",
+                lucky: {
+                    item: "黒のサングラス",
+                    color: "赤（黒の推しカラー）",
+                    song: "クールに行こうぜ",
+                    member: "黒（本当は優しい）"
+                }
+            },
+            {
+                title: "小吉",
+                message: "穏やかな運勢です。新曲チェックで幸運が訪れるかも🎶",
+                lucky: {
+                    item: "CD",
+                    color: "ピンク",
+                    song: "恋のパレット",
+                    member: "センター"
+                }
+            },
+            {
+                title: "遥介吉",
+                message: "癒しパワー全開！今日は遥介のようにみんなを包み込む優しさで幸運をゲット🎸💚",
+                lucky: {
+                    item: "遥介の作曲ノート",
+                    color: "緑（癒しの色）",
+                    song: "優しい旋律",
+                    member: "遥介（リーダーシップ発揮中）"
+                }
+            },
+            {
+                title: "吉",
+                message: "まずまずの運勢。握手会に参加すると良いことがあるかも👋",
+                lucky: {
+                    item: "写真集",
+                    color: "黄色",
+                    song: "夏のメロディ",
+                    member: "笑顔の人"
+                }
+            },
+            {
+                title: "ルイ吉",
+                message: "今日は芸術的センスが爆発！ルイのように独自の世界観で勝負だ🎨✨猫カフェに行くと更に運気UP",
+                lucky: {
+                    item: "ルイの描いた謎の絵",
+                    color: "ピンク🐈‍⬛",
+                    song: "アートな日々",
+                    member: "ルイ（猫モード）"
+                }
+            },
+            {
+                title: "末吉",
+                message: "これから運気が上昇します！SNSをチェックしてみて📱",
+                lucky: {
+                    item: "うちわ",
+                    color: "緑",
+                    song: "未来へのステップ",
+                    member: "努力家"
+                }
+            },
+            {
+                title: "湊吉",
+                message: "努力が報われる日！最年少パワーで誰よりも輝くぞ⚓真面目に頑張れば湊も認めてくれるはず！",
+                lucky: {
+                    item: "湊の練習メモ",
+                    color: "青（海の色）",
+                    song: "航海日誌",
+                    member: "湊（努力の天才）"
+                }
+            },
+            {
+                title: "凶",
+                message: "大丈夫！ライブ映像を見れば運気が好転します💪",
+                lucky: {
+                    item: "お守り",
+                    color: "白",
+                    song: "逆境スマイル",
+                    member: "応援団長"
+                }
+            },
+            {
+                title: "激凶",
+                message: "やばいかも...でも大丈夫！全員のサイン入りグッズを握りしめて寝れば明日は絶対大吉！🙏",
+                lucky: {
+                    item: "全員集合ポスター",
+                    color: "虹色（全部盛り）",
+                    song: "明日は明日の風が吹く",
+                    member: "全員（総動員）"
+                }
+            },
+            {
+                title: "琥太郎が転んだ吉",
+                message: "予期せぬハプニングがあるかも！でもそれが笑いに変わる！琥太郎のドジっ子パワーで場を和ませよう😂",
+                lucky: {
+                    item: "絆創膏",
+                    color: "オレンジ",
+                    song: "転んでも立ち上がれ",
+                    member: "琥太郎（ドジっ子モード）"
+                }
+            },
+            {
+                title: "Qmate加入推奨吉",
+                message: "今日入会すれば限定特典GET！先行チケット予約権とバースデーメッセージが待ってるぞ🎁",
+                lucky: {
+                    item: "Qmate会員証",
+                    color: "ゴールド",
+                    song: "ファンクラブテーマソング",
+                    member: "全員（神対応モード）"
+                }
+            },
+            {
+                title: "推し変注意報",
+                message: "危険！今日は全員が輝きすぎて推し変の危機！でも大丈夫、みんな推しで解決だ💕",
+                lucky: {
+                    item: "推し変防止メガネ",
+                    color: "全色コンプリート",
+                    song: "みんな好きだよ",
+                    member: "全員（選べない）"
+                }
+            },
+            {
+                title: "黒の本音が聞ける吉",
+                message: "超レア！今日は黒がたくさん喋る日かも！？クールな仮面の下の素顔が見られるチャンス🎭",
+                lucky: {
+                    item: "黒のマイク",
+                    color: "赤",
+                    song: "本音トーク",
+                    member: "黒（多弁モード発動中）"
+                }
+            },
+            {
+                title: "遥介の新曲完成吉",
+                message: "今日は創作意欲が湧く日！遥介のように何か作ってみよう🎼神曲が生まれる予感！",
+                lucky: {
+                    item: "ギター",
+                    color: "緑",
+                    song: "創作の喜び",
+                    member: "遥介（作曲モード）"
+                }
+            },
+            {
+                title: "ルイの猫化注意報",
+                message: "今日は甘えたくなる日。ルイのように気ままに過ごそう🐱でも爪は出さないでね！",
+                lucky: {
+                    item: "猫じゃらし",
+                    color: "ピンク",
+                    song: "にゃんにゃんソング",
+                    member: "ルイ（完全猫化）"
+                }
+            },
+            {
+                title: "湊の成長株吉",
+                message: "努力は裏切らない！最年少の湊を見習って今日も頑張ろう⚓成長痛も幸せの証！",
+                lucky: {
+                    item: "成長記録ノート",
+                    color: "青",
+                    song: "進化の軌跡",
+                    member: "湊（成長中）"
+                }
+            }
+        ];
+        
+        let hasDrawn = false;
+        
+        function drawOmikuji() {
+            if (hasDrawn) return;
+            
+            hasDrawn = true;
+            const box = document.getElementById('omikujiBox');
+            const stick = document.getElementById('stick');
+            const instruction = document.getElementById('instruction');
+            const resultCard = document.getElementById('resultCard');
+            const retryBtn = document.getElementById('retryBtn');
+            
+            // 箱を振る
+            box.classList.add('shake');
+            instruction.textContent = 'おみくじを引いています...';
+            
+            setTimeout(() => {
+                box.classList.remove('shake');
+                stick.classList.add('show');
+                
+                setTimeout(() => {
+                    // ランダムに運勢を選択
+                    const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+                    
+                    // 結果を表示
+                    document.getElementById('fortuneTitle').textContent = fortune.title;
+                    document.getElementById('fortuneMessage').textContent = fortune.message;
+                    
+                    const detailsHTML = `
+                        <div class="fortune-item">
+                            <div class="fortune-item-title">ラッキーアイテム</div>
+                            <div class="fortune-item-value">${fortune.lucky.item}</div>
+                        </div>
+                        <div class="fortune-item">
+                            <div class="fortune-item-title">ラッキーカラー</div>
+                            <div class="fortune-item-value">${fortune.lucky.color}</div>
+                        </div>
+                        <div class="fortune-item">
+                            <div class="fortune-item-title">ラッキーソング</div>
+                            <div class="fortune-item-value">${fortune.lucky.song}</div>
+                        </div>
+                        <div class="fortune-item">
+                            <div class="fortune-item-title">ラッキーメンバー</div>
+                            <div class="fortune-item-value">${fortune.lucky.member}</div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('fortuneDetails').innerHTML = detailsHTML;
+                    
+                    instruction.style.display = 'none';
+                    resultCard.classList.add('show');
+                    retryBtn.style.display = 'inline-block';
+                }, 500);
+            }, 500);
+        }
+        
+        function reset() {
+            hasDrawn = false;
+            const box = document.getElementById('omikujiBox');
+            const stick = document.getElementById('stick');
+            const instruction = document.getElementById('instruction');
+            const resultCard = document.getElementById('resultCard');
+            const retryBtn = document.getElementById('retryBtn');
+            
+            stick.classList.remove('show');
+            resultCard.classList.remove('show');
+            retryBtn.style.display = 'none';
+            instruction.style.display = 'block';
+            instruction.textContent = 'おみくじ箱をクリックして運勢を引いてね！';
+        }
+    </script>
+</body>
+</html>

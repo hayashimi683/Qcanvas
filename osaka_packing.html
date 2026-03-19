@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大阪遠征 荷物メモ</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0f0e17;--surface:#1a1828;--surface2:#231f35;
+    --accent:#e8a0bf;--accent2:#a8d8ea;--text:#f2f0ff;
+    --muted:#8a869f;--pink:#ff6b9d;--blue:#6ec6f5;
+    --gold:#f9c74f;--green:#7ecb8f;--border:rgba(255,255,255,0.08);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-weight:300;min-height:100vh;padding:24px 16px 60px;}
+  body::before{content:'';position:fixed;top:-200px;left:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(232,160,191,0.08) 0%,transparent 70%);pointer-events:none;z-index:0;}
+  body::after{content:'';position:fixed;bottom:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(168,216,234,0.06) 0%,transparent 70%);pointer-events:none;z-index:0;}
+  .container{max-width:680px;margin:0 auto;position:relative;z-index:1;}
+  header{text-align:center;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--border);}
+  header .eyebrow{font-family:'Zen Kaku Gothic New',sans-serif;font-size:11px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;}
+  header h1{font-family:'Zen Kaku Gothic New',sans-serif;font-size:28px;font-weight:900;letter-spacing:2px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  header .dates{font-size:13px;color:var(--muted);margin-top:6px;letter-spacing:1px;}
+  .tabs{display:flex;gap:4px;margin-bottom:20px;background:var(--surface);padding:4px;border-radius:12px;flex-wrap:wrap;}
+  .tab{flex:1;min-width:60px;padding:8px 4px;background:none;border:none;color:var(--muted);font-family:'Zen Kaku Gothic New',sans-serif;font-size:12px;font-weight:700;cursor:pointer;border-radius:8px;transition:all 0.2s;}
+  .tab.active{background:var(--surface2);color:var(--text);}
+  .tab-content{display:none;}
+  .tab-content.active{display:block;}
+  .section{margin-bottom:20px;background:var(--surface);border-radius:16px;overflow:hidden;border:1px solid var(--border);}
+  .section-header{padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+  .section-header .icon{font-size:18px;}
+  .section-header .title{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;}
+  .section-header .badge{margin-left:auto;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:400;}
+  .badge-pink{background:rgba(255,107,157,0.15);color:var(--pink);}
+  .badge-blue{background:rgba(110,198,245,0.15);color:var(--blue);}
+  .badge-gold{background:rgba(249,199,79,0.15);color:var(--gold);}
+  .badge-muted{background:rgba(255,255,255,0.06);color:var(--muted);}
+  .item{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background 0.15s;user-select:none;}
+  .item:last-child{border-bottom:none;}
+  .item:hover{background:rgba(255,255,255,0.03);}
+  .item.checked{opacity:0.4;}
+  .item.checked .item-text{text-decoration:line-through;}
+  .item.checked .checkbox{background:var(--green);border-color:var(--green);color:#0f0e17;}
+  .checkbox{width:20px;height:20px;border:1.5px solid var(--muted);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;font-size:12px;}
+  .item-text{font-size:14px;line-height:1.4;flex:1;}
+  .item-note{font-size:11px;color:var(--muted);margin-top:2px;}
+  .progress-bar{height:3px;background:var(--border);border-radius:2px;margin:16px 0 4px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width 0.3s ease;}
+  .progress-label{font-size:11px;color:var(--muted);text-align:right;margin-bottom:20px;}
+  .alert{background:rgba(249,199,79,0.08);border:1px solid rgba(249,199,79,0.25);border-radius:12px;padding:12px 16px;font-size:13px;color:var(--gold);margin-bottom:12px;line-height:1.6;}
+  .day-label{font-family:'Zen Kaku Gothic New',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;color:var(--muted);padding:16px 16px 8px;text-transform:uppercase;}
+  .buy-item{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;user-select:none;}
+  .buy-item:last-child{border-bottom:none;}
+  .buy-item:hover{background:rgba(255,255,255,0.03);}
+  .buy-item.bought{opacity:0.4;}
+  .buy-item.bought .item-text{text-decoration:line-through;}
+  .move-step{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;gap:14px;align-items:flex-start;}
+  .move-step:last-child{border-bottom:none;}
+  .step-time{font-family:'Zen Kaku Gothic New',sans-serif;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;min-width:48px;padding-top:2px;}
+  .step-body{flex:1;}
+  .step-title{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:700;font-size:14px;margin-bottom:6px;letter-spacing:0.5px;}
+  .bag-row{display:flex;flex-wrap:wrap;gap:6px;}
+  .bag-chip{font-size:12px;padding:3px 10px;border-radius:20px;border:1px solid;}
+  .chip-pink{border-color:rgba(255,107,157,0.4);color:var(--pink);background:rgba(255,107,157,0.08);}
+  .chip-amber{border-color:rgba(249,199,79,0.4);color:var(--gold);background:rgba(249,199,79,0.08);}
+  .chip-blue{border-color:rgba(110,198,245,0.4);color:var(--blue);background:rgba(110,198,245,0.08);}
+  .chip-gray{border-color:rgba(255,255,255,0.15);color:var(--muted);background:rgba(255,255,255,0.04);}
+  .step-note{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.6;}
+  .morning-row{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background 0.15s;user-select:none;}
+  .morning-row:hover{background:rgba(255,255,255,0.03);}
+  .morning-row:last-child{border-bottom:none;}
+  .morning-row.checked{opacity:0.4;}
+  .morning-row.checked .morning-row-name{text-decoration:line-through;}
+  .morning-row.checked .checkbox{background:var(--green);border-color:var(--green);color:#0f0e17;}
+  .morning-row-name{font-size:14px;flex:1;}
+  .morning-row-dest{font-size:11px;padding:3px 8px;border-radius:20px;flex-shrink:0;white-space:nowrap;}
+  .morning-intro{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;}
+  .morning-day-header{display:flex;align-items:center;gap:10px;font-family:'Zen Kaku Gothic New',sans-serif;font-weight:700;font-size:14px;letter-spacing:0.5px;margin:20px 0 10px;}
+  .morning-day-num{width:26px;height:26px;background:var(--accent2);color:#0f0e17;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+  .morning-day-num.pink{background:var(--accent);}
+  .wear{background:rgba(232,160,191,0.15);color:var(--accent);}
+  .tote{background:rgba(249,199,79,0.12);color:var(--gold);}
+  .shoulder{background:rgba(110,198,245,0.12);color:var(--blue);}
+  .ruck{background:rgba(255,255,255,0.06);color:var(--muted);}
+  .party{background:rgba(255,107,157,0.12);color:var(--pink);}
+  .sch-day-header{border-radius:12px;padding:14px 16px;margin:16px 0 10px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);}
+  .sch-day-title{display:flex;align-items:center;gap:10px;font-family:'Zen Kaku Gothic New',sans-serif;font-weight:700;font-size:15px;}
+  .sch-day-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;}
+  .sch-day-sub{font-size:12px;color:var(--muted);}
+  .sch-row{display:flex;gap:14px;padding:10px 16px;border-bottom:1px solid var(--border);align-items:flex-start;}
+  .sch-row:last-child{border-bottom:none;}
+  .sch-row.highlight-row{background:rgba(255,255,255,0.03);}
+  .sch-time{font-family:'Zen Kaku Gothic New',sans-serif;font-size:11px;font-weight:700;color:var(--muted);min-width:48px;padding-top:2px;line-height:1.5;}
+  .sch-body{flex:1;}
+  .sch-event{font-size:14px;line-height:1.5;}
+  .sch-note{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.5;}
+  .sch-cost-wrap{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--muted);flex-shrink:0;}
+  .sch-cost{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:'Noto Sans JP',sans-serif;padding:3px 6px;width:80px;text-align:right;}
+  .sch-cost:focus{outline:none;border-color:var(--accent);}
+  .expense-total{display:flex;align-items:center;justify-content:space-between;padding:16px;margin-top:8px;background:var(--surface);border-radius:12px;border:1px solid rgba(232,160,191,0.3);}
+  .expense-total-label{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:700;font-size:15px;}
+  .expense-total-amount{font-family:'Zen Kaku Gothic New',sans-serif;font-size:22px;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .cer-row{display:flex;gap:10px;padding:8px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;align-items:baseline;-webkit-tap-highlight-color:transparent;user-select:none;}
+  .cer-row:last-child{border-bottom:none;}
+  .cer-row:hover{background:rgba(255,255,255,0.03);}
+  .cer-row.done{opacity:0.35;}
+  .cer-row.done .cer-body{text-decoration:line-through;}
+  .cer-row.highlight{background:rgba(255,255,255,0.03);}
+  .cer-row.star .cer-body{color:var(--accent);}
+  .cer-row.accent-row .cer-body{color:var(--gold);font-size:12px;}
+  .cer-time{font-family:'Zen Kaku Gothic New',sans-serif;font-size:11px;font-weight:700;color:var(--muted);min-width:48px;flex-shrink:0;}
+  .cer-body{font-size:14px;line-height:1.5;flex:1;}
+  .add-btn-row{padding:10px 16px;font-size:13px;color:var(--muted);cursor:pointer;text-align:center;border-top:1px solid var(--border);transition:background 0.15s;}
+  .add-btn-row:hover{background:rgba(255,255,255,0.03);color:var(--accent);}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="eyebrow">packing memo</div>
+    <h1>大阪遠征 🌸</h1>
+    <div class="dates">3/20（金）〜 3/22（日）</div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('checklist')">持ち物</button>
+    <button class="tab" onclick="switchTab('move')">移動メモ</button>
+    <button class="tab" onclick="switchTab('buy')">やること</button>
+    <button class="tab" onclick="switchTab('morning')">枕元</button>
+    <button class="tab" onclick="switchTab('schedule')">日程表</button>
+    <button class="tab" onclick="switchTab('ceremony')">式</button>
+  </div>
+
+  <!-- TAB: チェックリスト -->
+  <div id="tab-checklist" class="tab-content active">
+    <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">0 / 0 チェック済み</div>
+    <div id="checklist-container"></div>
+  </div>
+
+  <!-- TAB: 荷物移動メモ -->
+  <div id="tab-move" class="tab-content">
+    <div class="day-label">1日目（金）— 移動 &amp; 居酒屋</div>
+    <div class="section">
+      <div class="move-step"><div class="step-time">出発</div><div class="step-body"><div class="step-title">自宅 → 大阪</div><div class="bag-row"><span class="bag-chip chip-blue">🎒 リュック（全荷物）</span><span class="bag-chip chip-amber">🛍 トート（折りたたみ）</span><span class="bag-chip chip-pink">👜 がま口</span></div><div class="step-note">トートはリュックの中に折りたたんで</div></div></div>
+      <div class="move-step"><div class="step-time">チェックイン</div><div class="step-body"><div class="step-title">ホテルに荷物を置く</div><div class="bag-row"><span class="bag-chip chip-gray">🎒 リュック → 部屋に置く</span><span class="bag-chip chip-pink">👜 がま口 → 持ち歩き</span></div></div></div>
+      <div class="move-step"><div class="step-time">19:00〜</div><div class="step-body"><div class="step-title">居酒屋</div><div class="bag-row"><span class="bag-chip chip-pink">👛 パーティーバッグで行く（ご祝儀袋はまだ入れない！）</span></div></div></div>
+    </div>
+    <div class="day-label">2日目（土）— 結婚式 ✨</div>
+    <div class="section">
+      <div class="move-step"><div class="step-time">朝 出発</div><div class="step-body"><div class="step-title">ホテルを出る</div><div class="bag-row"><span class="bag-chip chip-gray">🎒 リュック → ホテルに預ける</span><span class="bag-chip chip-amber">🛍 トート（着替え等）</span><span class="bag-chip chip-pink">👛 パーティーバッグ → トートの中に</span></div><div class="step-note">パーティーバッグにご祝儀袋を入れた状態でトートへ</div></div></div>
+      <div class="move-step"><div class="step-time">美容院</div><div class="step-body"><div class="step-title">ヘアセット → ここで着替え完了</div><div class="bag-row"><span class="bag-chip chip-amber">🛍 トートで乗り込む</span></div><div class="step-note">ドレスに着替え・メイク直し・パンプスに履き替え</div></div></div>
+      <div class="move-step"><div class="step-time">式場着</div><div class="step-body"><div class="step-title">クロークに預ける &amp; 受付へ</div><div class="bag-row"><span class="bag-chip chip-gray">🛍 トート → クロークへ</span><span class="bag-chip chip-pink">👛 パーティーバッグ → 手に持つ</span></div><div class="step-note">受付でパーティーバッグからご祝儀袋を出して渡す</div></div></div>
+      <div class="move-step"><div class="step-time">式後</div><div class="step-body"><div class="step-title">クローク引き取り → ホテルへ</div><div class="bag-row"><span class="bag-chip chip-amber">🛍 トート回収</span><span class="bag-chip chip-blue">🎒 リュック回収</span></div><div class="step-note">ホテルで着替えて夜の函館酒場へ</div></div></div>
+      <div class="move-step"><div class="step-time">19:00〜</div><div class="step-body"><div class="step-title">函館酒場・バー</div><div class="bag-row"><span class="bag-chip chip-pink">👛 パーティーバッグのまま（ご祝儀袋は渡し済みでスペース空いてる！）</span></div></div></div>
+    </div>
+    <div class="day-label">3日目（日）— 観光 &amp; 帰宅</div>
+    <div class="section">
+      <div class="move-step"><div class="step-time">朝〜</div><div class="step-body"><div class="step-title">朝ごはん・プリクラ・カラオケ</div><div class="bag-row"><span class="bag-chip chip-pink">👜 がま口（メイン）</span><span class="bag-chip chip-amber">🛍 トート（買い物用）</span></div><div class="step-note">リュックはコインロッカーへ</div></div></div>
+      <div class="move-step"><div class="step-time">帰宅</div><div class="step-body"><div class="step-title">全荷物まとめて帰る</div><div class="bag-row"><span class="bag-chip chip-blue">🎒 リュック（メイン）</span><span class="bag-chip chip-amber">🛍 お土産はトートに</span></div></div></div>
+    </div>
+  </div>
+
+  <!-- TAB: やること -->
+  <div id="tab-buy" class="tab-content">
+    <div id="buy-container"></div>
+  </div>
+
+  <!-- TAB: 枕元リスト -->
+  <div id="tab-morning" class="tab-content">
+    <div class="morning-intro">出発前夜、枕元に並べておくもの一覧。朝イチで確認してね。</div>
+    <div id="morning-container"></div>
+  </div>
+
+  <!-- TAB: 日程表 -->
+  <div id="tab-schedule" class="tab-content">
+    <div class="sch-day-header" style="background:linear-gradient(135deg,rgba(110,198,245,0.15),rgba(110,198,245,0.05));">
+      <div class="sch-day-title"><span class="sch-day-num" style="background:var(--blue);color:#0f0e17">金</span>1日目　3/20（金）</div>
+      <div class="sch-day-sub">移動 &amp; 居酒屋</div>
+    </div>
+    <div class="section">
+      <div class="sch-row"><div class="sch-time">08:39</div><div class="sch-body"><div class="sch-event">てまり　特急乗車</div></div></div>
+      <div class="sch-row"><div class="sch-time">09:53</div><div class="sch-body"><div class="sch-event">みっこ　電車乗車</div></div></div>
+      <div class="sch-row"><div class="sch-time">10:18</div><div class="sch-body"><div class="sch-event">林（あなた）　電車乗車</div><div class="sch-note">大阪高月（行き）</div></div><div class="sch-cost-wrap">¥<input class="sch-cost" type="number" value="2310" oninput="calcTotal()"></div></div>
+      <div class="sch-row highlight-row"><div class="sch-time">昼頃</div><div class="sch-body"><div class="sch-event">大阪駅周辺で合流 🎉</div><div class="sch-note">昼ごはん（えん）</div></div><div class="sch-cost-wrap">¥<input class="sch-cost" type="number" placeholder="0" oninput="calcTotal()"></div></div>
+      <div class="sch-row"><div class="sch-time">午後</div><div class="sch-body"><div class="sch-event">淀屋橋へ移動</div><div class="sch-note">地下鉄（大阪駅↔淀屋橋 200円×複数回）</div></div><div class="sch-cost-wrap">¥<input class="sch-cost" type="number" value="1000" oninput="calcTotal()"></div></div>
+      <div class="sch-row"><div class="sch-time">午後</div><div class="sch-body"><div class="sch-event">ホテルチェックイン・休憩 🔍</div><div class="sch-note">謎解きキット（真紅のアンティーク）</div></div><div class="sch-cost-wrap">¥<input class="sch-cost" type="number" value="900" oninput="calcTotal()"></div></div>
+      <div class="sch-row highlight-row"><div class="sch-time">19:00</div><div class="sch-body"><div class="sch-event">居酒屋 🍻</div></div><div class="sch-cost-wrap">¥<input class="sch-cost" type="number" value="6000" oninput="calcTotal()"></div></div>
+      <div class="sch-row"><div class="sch-time">20〜23:00</div><div class="sch-body"><div class="sch-event">相鉄フレッサイン北浜　チェックイン</div><div class="sch-note">部屋別</div></div><div class="sch-cost-wrap">¥<input class="sch-cost" type="number" value="8325" oninput="calcTotal()"></div></div>
+    </div>
+    <div class="sch-day-header" style="background:linear-gradient(135deg,rgba(232,160,191,0.2),rgba(232,160,191,0.05));">
+      <div class="sch-day-title"><span class="sch-day-num" style="background:var(--accent);color:#0f0e17">土</span>2日目　3/21（土）</div>
+      <div class="sch-day-sub">結婚式 ✨</div>
+    </div>
+    <div class="section">
+      <div class="sch-row highlight-row"><div class="sch-time">09:00</div><div class="sch-body"><div class="sch-event">ヘアセット　林（あなた）</div><div class="sch-note">アトリエ遥 / 美容院で着替え・メイク直し・パンプスに履き替え！</div></div><div class="sch-cost-wrap">¥<input class="sch-cost" type="number" value="10000" oninput="calcTotal()"></div></div>
+      <div class="sch-row"><div class="sch-time">10:40</div><div class="sch-body"><div class="sch-event">ヘアセット　てまり</div></div></div>
+      <div class="sch-row"><div class="sch-time">11:00</div><div class="sch-body"><div class="sch-event">ヘアセット　みっこ</div></div></div>
+      <div class="sch-row highlight-row"><div class="sch-time">11:30</div><div class="sch-body"><div class="sch-event">1.5次会　受付 💰</div><div class="sch-note">参加費 25,000円　← パーティーバッグから！</div></div><div class="sch-cost-wrap">¥<input class="sch-cost" type="number" value="25000" oninput="calcTotal()"></div></div>
+      <div class="sch-row highlight-row"><div class="sch-time">12:00〜14:30</div><div class="sch-body"><div class="sch-event">式 🥂</div><div class="sch-note"><a onclick="switchTab('ceremony')" style="color:var(--accent);cursor:pointer;text-decoration:underline">→ 式の詳細タイムラインはこちら</a></div></div></div>
+      <div class="sch-row"><div class="sch-time">夕方</div><div class="sch-body"><div class="sch-event">ホテルに戻って着替え</div><div class="sch-note">クロークでトート回収 → リュック回収</div></div></div>
+      <div class="sch-row highlight-row"><div class="sch-time">19:00</div><div class="sch-body"><div class="sch-event">函館酒場　コバヤシ合流 🍺</div></div><div class="sch-cost-wrap">¥<input class="sch-cost" type="number" value="6000" oninput="calcTotal()"></div></div>
+      <div class="sch-row"><div class="sch-time">二軒目</div><div class="sch-body"><div class="sch-event">初心者向けバー 🍸</div></div><div class="sch-cost-wrap">¥<input class="sch-cost" type="number" value="3000" oninput="calcTotal()"></div></div>
+      <div class="sch-row"><div class="sch-time">23:00</div><div class="sch-body"><div class="sch-event">ホテル京橋　チェックイン</div></div><div class="sch-cost-wrap">¥<input class="sch-cost" type="number" value="10000" oninput="calcTotal()"></div></div>
+    </div>
+    <div class="sch-day-header" style="background:linear-gradient(135deg,rgba(126,203,143,0.15),rgba(126,203,143,0.05));">
+      <div class="sch-day-title"><span class="sch-day-num" style="background:var(--green);color:#0f0e17">日</span>3日目　3/22（日）</div>
+      <div class="sch-day-sub">観光 &amp; 帰宅</div>
+    </div>
+    <div class="section">
+      <div class="sch-row"><div class="sch-time">朝</div><div class="sch-body"><div class="sch-event">朝ごはん（あさめし）🍱</div></div><div class="sch-cost-wrap">¥<input class="sch-cost" type="number" value="2000" oninput="calcTotal()"></div></div>
+      <div class="sch-row highlight-row"><div class="sch-time">10:00</div><div class="sch-body"><div class="sch-event">小林合流 🎉</div></div></div>
+      <div class="sch-row"><div class="sch-time">午後</div><div class="sch-body"><div class="sch-event">プリクラ 📸</div></div><div class="sch-cost-wrap">¥<input class="sch-cost" type="number" value="300" oninput="calcTotal()"></div></div>
+      <div class="sch-row"><div class="sch-time">昼</div><div class="sch-body"><div class="sch-event">イタリアン 🍝</div></div><div class="sch-cost-wrap">¥<input class="sch-cost" type="number" value="3000" oninput="calcTotal()"></div></div>
+      <div class="sch-row"><div class="sch-time">afternoon</div><div class="sch-body"><div class="sch-event">カラオケ（ジャンカラ）🎤</div></div><div class="sch-cost-wrap">¥<input class="sch-cost" type="number" value="2000" oninput="calcTotal()"></div></div>
+      <div class="sch-row highlight-row"><div class="sch-time">17:30</div><div class="sch-body"><div class="sch-event">てまり　帰宅</div></div></div>
+      <div class="sch-row highlight-row"><div class="sch-time">17:40</div><div class="sch-body"><div class="sch-event">林（あなた）・みっこ　帰宅</div><div class="sch-note">大阪高月（帰り）</div></div><div class="sch-cost-wrap">¥<input class="sch-cost" type="number" value="2310" oninput="calcTotal()"></div></div>
+      <div class="sch-row"><div class="sch-time">17:45</div><div class="sch-body"><div class="sch-event">小林　旦那さんと合流</div></div></div>
+    </div>
+    <div class="expense-total">
+      <div class="expense-total-label">合計</div>
+      <div class="expense-total-amount">¥<span id="total-amount">0</span></div>
+    </div>
+  </div>
+
+  <!-- TAB: 式タイムライン -->
+  <div id="tab-ceremony" class="tab-content">
+    <div class="sch-day-header" style="background:linear-gradient(135deg,rgba(232,160,191,0.2),rgba(232,160,191,0.05));">
+      <div class="sch-day-title"><span class="sch-day-num" style="background:var(--accent);color:#0f0e17">式</span>1.5次会　3/21（土）</div>
+      <div class="sch-day-sub">グランレスパイア</div>
+    </div>
+    <div class="section" id="ceremony-section"></div>
+  </div>
+
+</div>
+
+<!-- アクションメニューモーダル -->
+<div id="action-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100;align-items:flex-end;justify-content:center">
+  <div style="background:var(--surface);border-radius:16px 16px 0 0;padding:20px;width:100%;max-width:480px">
+    <div id="modal-title" style="font-size:13px;color:var(--muted);margin-bottom:16px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+    <button onclick="doEdit()" style="width:100%;padding:14px;background:var(--surface2);border:none;border-radius:10px;color:var(--text);font-size:15px;margin-bottom:8px;cursor:pointer">✏️ 編集する</button>
+    <button onclick="doDelete()" style="width:100%;padding:14px;background:rgba(226,75,74,0.15);border:none;border-radius:10px;color:#f09595;font-size:15px;margin-bottom:8px;cursor:pointer">🗑 削除する</button>
+    <button onclick="closeModal()" style="width:100%;padding:14px;background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer">キャンセル</button>
+  </div>
+</div>
+
+<!-- 編集モーダル -->
+<div id="edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border-radius:16px;padding:24px;width:90%;max-width:400px">
+    <div style="font-family:'Zen Kaku Gothic New',sans-serif;font-weight:700;font-size:15px;margin-bottom:16px">編集</div>
+    <input id="edit-text" type="text" placeholder="項目名" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:14px;margin-bottom:8px;font-family:'Noto Sans JP',sans-serif">
+    <input id="edit-note" type="text" placeholder="メモ（任意）" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:13px;margin-bottom:16px;font-family:'Noto Sans JP',sans-serif">
+    <div style="display:flex;gap:8px">
+      <button onclick="closeEditModal()" style="flex:1;padding:12px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer">キャンセル</button>
+      <button onclick="saveEdit()" style="flex:1;padding:12px;background:var(--accent);border:none;border-radius:8px;color:#0f0e17;font-weight:700;cursor:pointer">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 削除確認モーダル -->
+<div id="delete-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border-radius:16px;padding:24px;width:90%;max-width:400px;text-align:center">
+    <div style="font-size:15px;margin-bottom:8px">本当に削除する？</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:20px">元に戻せないよ</div>
+    <div style="display:flex;gap:8px">
+      <button onclick="closeDeleteModal()" style="flex:1;padding:12px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer">やっぱやめる</button>
+      <button onclick="confirmDelete()" style="flex:1;padding:12px;background:rgba(226,75,74,0.2);border:none;border-radius:8px;color:#f09595;font-weight:700;cursor:pointer">削除する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 追加モーダル -->
+<div id="add-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border-radius:16px;padding:24px;width:90%;max-width:400px">
+    <div style="font-family:'Zen Kaku Gothic New',sans-serif;font-weight:700;font-size:15px;margin-bottom:16px">項目を追加</div>
+    <input id="add-text" type="text" placeholder="項目名" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:14px;margin-bottom:8px;font-family:'Noto Sans JP',sans-serif">
+    <input id="add-note" type="text" placeholder="メモ（任意）" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:13px;margin-bottom:16px;font-family:'Noto Sans JP',sans-serif">
+    <div style="display:flex;gap:8px">
+      <button onclick="closeAddModal()" style="flex:1;padding:12px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer">キャンセル</button>
+      <button onclick="confirmAdd()" style="flex:1;padding:12px;background:var(--accent);border:none;border-radius:8px;color:#0f0e17;font-weight:700;cursor:pointer">追加</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== データ定義 ==========
+const DEFAULT_DATA = {
+  checklist: [
+    { bag: '🎒 リュック', badge: 'badge-blue', badgeText: '移動・全日程', items: [
+      { text: '休足シート', note: '夜ホテルで貼る用' },
+      { text: 'アベンヌスプレー・ジェルミルク', note: 'スキンケア' },
+      { text: '圧縮袋（小）', note: '帰りのお土産・かさばる服用' },
+      { text: 'パジャマ（短パン・Tシャツ）' },
+      { text: '着ていく服（1日目）', note: 'アイボリーラメニット・ダークグレースカート・ベージュカップ付きキャミ' },
+      { text: '2日目夜用（着替え）', note: '柄スカート（白×黄色×青）・モーブパーカー（前開き）' },
+      { text: '足元 🧦', note: 'ストッキング（結婚式用）・シルバーシアーラメ靴下（2日目夜）・黒×シルバーラメ靴下（3日目 or 予備）' },
+      { text: 'イデア（誕生日プレゼント）🎁' },
+      { text: '充電器' },
+      { text: '薬' },
+      { text: 'ばんそうこう' },
+      { text: 'ハンガー（2本）' },
+      { text: '延長コード' },
+      { text: 'ネイルシール・プッシャーとはさみ', note: '前日夜にホテルで仕上げる用' },
+      { text: 'エコバッグ・レジ袋' },
+      { text: 'A4用紙・クリップボード・ボールペン' },
+      { text: 'タングルティーザー' },
+      { text: 'スマホ首から下げるひも' },
+    ]},
+    { bag: '🛍 ライブトート', badge: 'badge-gold', badgeText: '2日目メイン', items: [
+      { text: '小財布 💰', note: '2日目朝、トートに入ってるか必ず確認！' },
+      { text: 'パールの一式' },
+      { text: '髪飾り' },
+      { text: 'ドレス・ボレロ' },
+      { text: '靴袋' },
+      { text: 'パンプス' },
+      { text: 'ストッキング（予備含め2足）' },
+      { text: 'メイクポーチ' },
+      { text: 'クレンジングシート' },
+    ]},
+    { bag: '👛 パーティーバッグ', badge: 'badge-pink', badgeText: '式当日', alert: '⚠ ご祝儀袋は2日目の朝に入れる！1日目夜はご祝儀袋なしで居酒屋へ。', items: [
+      { text: 'ご祝儀袋（25,000円 現金）' },
+      { text: '財布（最小限）' },
+      { text: 'スマホ' },
+      { text: '口紅・ハンカチ' },
+      { text: '眼鏡ふき', note: 'アクスタの皮脂汚れ対策！' },
+      { text: 'くにぬのペンライト 🔦' },
+      { text: 'くにぬ・くにぬのリボン 🎀', note: '式場参列！' },
+      { text: '奈緒ちゃんアクスタ 🪆', note: '式場参列！' },
+      { text: '長義アクスタ', note: '式場参列！' },
+      { text: '国広アクスタ', note: '式場参列！' },
+    ]},
+    { bag: '👜 がま口バッグ', badge: 'badge-muted', badgeText: '1・3日目メイン', items: [
+      { text: '水分（ペットボトル）' },
+      { text: '財布' },
+      { text: 'ICOCA' },
+      { text: 'スマホ' },
+      { text: 'モバイルバッテリー' },
+      { text: 'イヤホン' },
+      { text: 'ぬいスタンド', note: 'ぬいポーチはがま口にチャームとして外付け' },
+      { text: '折りたたみいす 🪑', note: '基本はカラビナ外付け、しんどくなったらリュックに移動！' },
+      { text: 'くにぬ・くにぬのリボン（1・3日目用）' },
+      { text: '折りたたみ傘' },
+      { text: '尿取りパッド' },
+      { text: '鏡', note: '割れ注意！やわらかいものに包んで' },
+      { text: 'ばんそうこう' },
+      { text: '薬' },
+    ]},
+  ],
+  buy: [
+    { section: '今日の帰りにやること 🏃', items: [
+      { text: 'ATMで現金を下ろす 💴', note: '旅費の現金分を用意！' },
+      { text: '水分（ペットボトル）を買う' },
+      { text: '圧縮袋（小）を買う', note: '100均で！手で押すだけの掃除機不要タイプがおすすめ' },
+      { text: '眼鏡ふきを買う', note: '100均で一緒に！' },
+      { text: 'しまむらでパンツを買う（1枚）', note: '19時閉店注意！早めに行くべし' },
+      { text: 'スギ薬局で休足シートを買う' },
+    ]},
+    { section: '出発前に買う・済ませる', items: [
+      { text: 'ボタン電池 LR41', bought: true },
+      { text: 'パンプスインソール', bought: true },
+      { text: 'スマホ機種変', bought: true },
+    ]},
+    { section: '出発前にやること', items: [
+      { text: 'ご祝儀袋 記入・封済み', note: '現金25,000円も封入済み', bought: true },
+      { text: 'がま口バッグに薔薇のチャームをつける 🌹' },
+      { text: 'くにぬのペンライトにボタン電池を入れる' },
+      { text: 'パーティーバッグに全部入るか試す', note: '財布・スマホ・口紅・ハンカチ・ペンライト・くにぬ・奈緒ちゃん・長義・国広アクスタ' },
+    ]},
+    { section: '当日やること 📸', items: [
+      { text: '5人で写真を撮る！' },
+      { text: 'イデアを渡す 🎁', note: '誕生日プレゼント、渡すタイミング忘れずに！' },
+    ]},
+  ],
+  morning: [
+    { day: '1', label: '1日目（金）出発の朝', pink: false, items: [
+      { text: 'アイボリーラメニット', dest: '👗 着ていく', destClass: 'wear' },
+      { text: 'ダークグレースカート', dest: '👗 着ていく', destClass: 'wear' },
+      { text: 'ベージュカップ付きキャミ', dest: '👗 着ていく（インナー）', destClass: 'wear' },
+      { text: 'スマホ', dest: '👜 がま口鞄へ', destClass: 'shoulder' },
+      { text: '財布・ICOCA', dest: '👜 がま口鞄へ', destClass: 'shoulder' },
+      { text: '充電器', dest: '🎒 リュックから朝イチ抜く', destClass: 'ruck' },
+      { text: '延長コード', dest: '🎒 リュックから朝イチ抜く', destClass: 'ruck' },
+    ]},
+    { day: '2', label: '2日目（土）結婚式の朝 ✨', pink: true, alert: '⚠ リュックはホテルに預けてライブトートだけで出発！', items: [
+      { text: 'ご祝儀袋 → パーティーバッグへ入れる', dest: '👛 この朝に入れる！', destClass: 'party' },
+      { text: '小財布 💰', dest: '🛍 トートへ（絶対！）', destClass: 'tote' },
+      { text: 'パーティーバッグ', dest: '🛍 トートの中へ', destClass: 'tote' },
+      { text: 'ご祝儀袋', dest: '👛 パーティーバッグの中か確認', destClass: 'party' },
+      { text: 'スマホ', dest: '👛 パーティーバッグへ', destClass: 'party' },
+      { text: 'モバイルバッテリー', dest: '🛍 トートへ', destClass: 'tote' },
+      { text: 'くにぬ・くにぬのリボン・奈緒ちゃん・長義・国広アクスタ', dest: '👛 パーティーバッグへ（参列！）', destClass: 'party' },
+      { text: 'パールの一式・髪飾り', dest: '🛍 トートへ（美容院で付ける）', destClass: 'tote' },
+      { text: 'ストッキング', dest: '🛍 トートへ（美容院で履く）', destClass: 'tote' },
+      { text: 'パンプス＋靴袋', dest: '🛍 トートへ', destClass: 'tote' },
+      { text: 'メイクポーチ・鏡', dest: '🛍 トートへ', destClass: 'tote' },
+    ]},
+  ],
+  ceremony: [
+    { time: '11:30', body: '受付開始', cls: 'highlight' },
+    { body: 'ご祝儀を渡す 💰' },
+    { body: '席次表・ペンライト2本・お車代・ビンゴカードをもらう' },
+    { body: '⚠ ゲスト控え室なし！受付スタートに合わせて到着', cls: 'accent-row' },
+    { time: '〜12:00', body: '披露宴会場へ直接入場' },
+    { body: 'ムービーがループ再生されてるかも？' },
+    { time: '12:00', body: '🔦 ペンライト1本目　光らせる！', cls: 'highlight' },
+    { body: 'オープニングムービー上映' },
+    { body: '新郎新婦入場' },
+    { body: '①開式の辞' },
+    { body: '②誓いの言葉' },
+    { body: '③指輪交換＆披露' },
+    { body: '④誓いのキス' },
+    { body: '⑤結婚証明書サイン（新郎・新婦・立会人2人）' },
+    { body: '⑥結婚証明書披露' },
+    { body: '⑦立会人席に戻る' },
+    { body: '⑧拍手・結婚成立宣言' },
+    { body: '開宴の辞' },
+    { body: 'ウェルカムスピーチ' },
+    { body: '司会者から2人のプロフ紹介' },
+    { time: '12:20', body: '乾杯酒もらう', cls: 'highlight' },
+    { body: '乾杯の発声（新郎友人🤵）' },
+    { body: '食事・歓談スタート' },
+    { body: '📸 撮影タイム！' },
+    { time: '12:35', body: 'ケーキ入刀', cls: 'highlight' },
+    { body: 'ファーストバイト' },
+    { time: '12:40', body: '⭐ 新婦中座　← 林、ここ！', cls: 'star' },
+    { body: '司会者から名前が呼ばれたら席を立つ', cls: 'star' },
+    { body: '新婦のところへ行って一緒に退場', cls: 'star' },
+    { body: '新郎中座' },
+    { body: '祝電（あれば）' },
+    { body: 'プロフィールムービー上映' },
+    { time: '13:10', body: '🔦 ペンライト2本目　光らせる！', cls: 'highlight' },
+    { body: '新郎新婦再入場' },
+    { body: '各卓を練り歩き' },
+    { time: '13:40', body: 'メインテーブル着席', cls: 'highlight' },
+    { body: 'ビンゴ大会 🎯' },
+    { body: '新婦ぬいぐるみトス' },
+    { body: '新郎ブロッコリートス 🥦' },
+    { body: '謝辞' },
+    { time: '14:25', body: '新郎新婦退場', cls: 'highlight' },
+    { body: 'エンドロールムービー上映' },
+    { time: '14:30', body: '閉宴・送迎', cls: 'highlight' },
+    { body: 'プチギフト・装花プレゼントあり 🎁' },
+    { body: '⚠ 忘れ物チェック！くにぬ・アクスタ・スマホ・パーティーバッグの中身・席に置いたもの全部！', cls: 'accent-row' },
+  ]
+};
+
+// ========== state管理 ==========
+let state = { checklist: null, buy: null, morning: null, ceremony: null, costs: [] };
+
+function loadData() {
+  try {
+    const saved = localStorage.getItem('osaka_v3');
+    if (saved) state = JSON.parse(saved);
+    else resetToDefault();
+  } catch(e) { resetToDefault(); }
+}
+
+function resetToDefault() {
+  state.checklist = DEFAULT_DATA.checklist.map(bag => ({
+    ...bag,
+    items: bag.items.map(item => ({ ...item, checked: false }))
+  }));
+  state.buy = DEFAULT_DATA.buy.map(sec => ({
+    ...sec,
+    items: sec.items.map(item => ({ ...item }))
+  }));
+  state.morning = DEFAULT_DATA.morning.map(day => ({
+    ...day,
+    items: day.items.map(item => ({ ...item, checked: false }))
+  }));
+  state.ceremony = DEFAULT_DATA.ceremony.map(row => ({ ...row, done: false }));
+  state.costs = [];
+}
+
+function saveData() {
+  // 金額も保存
+  state.costs = [];
+  document.querySelectorAll('#tab-schedule .sch-cost').forEach(el => {
+    state.costs.push(el.value);
+  });
+  localStorage.setItem('osaka_v3', JSON.stringify(state));
+}
+
+// ========== レンダリング ==========
+function renderChecklist() {
+  const container = document.getElementById('checklist-container');
+  container.innerHTML = '';
+  state.checklist.forEach((bag, bi) => {
+    const sec = document.createElement('div');
+    sec.className = 'section';
+    let html = `<div class="section-header"><span class="icon">${bag.bag.split(' ')[0]}</span><span class="title">${bag.bag.split(' ').slice(1).join(' ')}</span><span class="badge ${bag.badge}">${bag.badgeText}</span></div>`;
+    if (bag.alert) html += `<div class="alert">${bag.alert}</div>`;
+    sec.innerHTML = html;
+    bag.items.forEach((item, ii) => {
+      sec.appendChild(makeCheckItem(item, bi, ii));
+    });
+    const addBtn = document.createElement('div');
+    addBtn.className = 'add-btn-row';
+    addBtn.textContent = '＋ 項目を追加';
+    addBtn.onclick = () => openAddModal('checklist', bi);
+    sec.appendChild(addBtn);
+    container.appendChild(sec);
+  });
+  updateProgress();
+}
+
+function makeCheckItem(item, bi, ii) {
+  const el = document.createElement('div');
+  el.className = 'item' + (item.checked ? ' checked' : '');
+  el.innerHTML = `<div class="checkbox">${item.checked ? '✓' : ''}</div><div><div class="item-text">${item.text}</div>${item.note ? `<div class="item-note">${item.note}</div>` : ''}</div>`;
+  let pressTimer = null;
+  const onTap = () => {
+    item.checked = !item.checked;
+    el.classList.toggle('checked', item.checked);
+    el.querySelector('.checkbox').textContent = item.checked ? '✓' : '';
+    updateProgress();
+    saveData();
+  };
+  el.addEventListener('click', onTap);
+  el.addEventListener('mousedown', () => { pressTimer = setTimeout(() => { clearTimeout(pressTimer); pressTimer = null; openActionModal(item, () => renderChecklist()); }, 600); });
+  el.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { clearTimeout(pressTimer); pressTimer = null; openActionModal(item, () => renderChecklist()); }, 600); }, {passive:true});
+  el.addEventListener('mouseup', () => clearTimeout(pressTimer));
+  el.addEventListener('touchend', () => clearTimeout(pressTimer));
+  return el;
+}
+
+function renderBuy() {
+  const container = document.getElementById('buy-container');
+  container.innerHTML = '';
+  state.buy.forEach((sec, si) => {
+    const label = document.createElement('div');
+    label.className = 'day-label';
+    label.textContent = sec.section;
+    container.appendChild(label);
+    const secEl = document.createElement('div');
+    secEl.className = 'section';
+    sec.items.forEach((item, ii) => {
+      secEl.appendChild(makeBuyItem(item, si, ii));
+    });
+    const addBtn = document.createElement('div');
+    addBtn.className = 'add-btn-row';
+    addBtn.textContent = '＋ 項目を追加';
+    addBtn.onclick = () => openAddModal('buy', si);
+    secEl.appendChild(addBtn);
+    container.appendChild(secEl);
+  });
+}
+
+function makeBuyItem(item, si, ii) {
+  const el = document.createElement('div');
+  el.className = 'buy-item' + (item.bought ? ' bought' : '');
+  const cb = item.bought ? `<div class="checkbox" style="background:var(--green);border-color:var(--green);color:#0f0e17">✓</div>` : `<div class="checkbox"></div>`;
+  el.innerHTML = `${cb}<div><div class="item-text">${item.text}</div>${item.note ? `<div class="item-note">${item.note}</div>` : ''}</div>`;
+  let pressTimer = null;
+  const onTap = () => {
+    item.bought = !item.bought;
+    const c = el.querySelector('.checkbox');
+    el.classList.toggle('bought', item.bought);
+    c.textContent = item.bought ? '✓' : '';
+    c.style.background = item.bought ? 'var(--green)' : '';
+    c.style.borderColor = item.bought ? 'var(--green)' : '';
+    c.style.color = item.bought ? '#0f0e17' : '';
+    saveData();
+  };
+  el.addEventListener('click', onTap);
+  el.addEventListener('mousedown', () => { pressTimer = setTimeout(() => { clearTimeout(pressTimer); pressTimer = null; openActionModal(item, () => renderBuy()); }, 600); });
+  el.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { clearTimeout(pressTimer); pressTimer = null; openActionModal(item, () => renderBuy()); }, 600); }, {passive:true});
+  el.addEventListener('mouseup', () => clearTimeout(pressTimer));
+  el.addEventListener('touchend', () => clearTimeout(pressTimer));
+  return el;
+}
+
+function renderMorning() {
+  const container = document.getElementById('morning-container');
+  container.innerHTML = '';
+  state.morning.forEach((day, di) => {
+    const header = document.createElement('div');
+    header.className = 'morning-day-header';
+    header.innerHTML = `<span class="morning-day-num${day.pink ? ' pink' : ''}">${day.day}</span><span>${day.label}</span>`;
+    container.appendChild(header);
+    if (day.alert) {
+      const alertEl = document.createElement('div');
+      alertEl.className = 'alert';
+      alertEl.textContent = day.alert;
+      container.appendChild(alertEl);
+    }
+    const sec = document.createElement('div');
+    sec.className = 'section';
+    day.items.forEach((item, ii) => {
+      sec.appendChild(makeMorningItem(item, di, ii));
+    });
+    const addBtn = document.createElement('div');
+    addBtn.className = 'add-btn-row';
+    addBtn.textContent = '＋ 項目を追加';
+    addBtn.onclick = () => openAddModal('morning', di);
+    sec.appendChild(addBtn);
+    container.appendChild(sec);
+  });
+}
+
+function makeMorningItem(item, di, ii) {
+  const el = document.createElement('div');
+  el.className = 'morning-row' + (item.checked ? ' checked' : '');
+  el.innerHTML = `<div class="checkbox">${item.checked ? '✓' : ''}</div><div class="morning-row-name">${item.text}</div>${item.dest ? `<div class="morning-row-dest ${item.destClass||'ruck'}">${item.dest}</div>` : ''}`;
+  let pressTimer = null;
+  const onTap = () => {
+    item.checked = !item.checked;
+    el.classList.toggle('checked', item.checked);
+    el.querySelector('.checkbox').textContent = item.checked ? '✓' : '';
+    saveData();
+  };
+  el.addEventListener('click', onTap);
+  el.addEventListener('mousedown', () => { pressTimer = setTimeout(() => { clearTimeout(pressTimer); pressTimer = null; openActionModal(item, () => renderMorning()); }, 600); });
+  el.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { clearTimeout(pressTimer); pressTimer = null; openActionModal(item, () => renderMorning()); }, 600); }, {passive:true});
+  el.addEventListener('mouseup', () => clearTimeout(pressTimer));
+  el.addEventListener('touchend', () => clearTimeout(pressTimer));
+  return el;
+}
+
+function renderCeremony() {
+  const sec = document.getElementById('ceremony-section');
+  sec.innerHTML = '';
+  state.ceremony.forEach((row, i) => {
+    const el = document.createElement('div');
+    el.className = 'cer-row' + (row.cls ? ' ' + row.cls : '') + (row.done ? ' done' : '');
+    el.innerHTML = `<div class="cer-time">${row.time || ''}</div><div class="cer-body">${row.body}</div>`;
+    el.onclick = () => { row.done = !row.done; el.classList.toggle('done', row.done); saveData(); };
+    sec.appendChild(el);
+  });
+}
+
+// ========== 金額 ==========
+function calcTotal() {
+  let total = 0;
+  document.querySelectorAll('#tab-schedule .sch-cost').forEach(i => total += parseInt(i.value) || 0);
+  document.getElementById('total-amount').textContent = total.toLocaleString();
+  saveData();
+}
+
+function loadCosts() {
+  if (!state.costs || !state.costs.length) return;
+  document.querySelectorAll('#tab-schedule .sch-cost').forEach((el, i) => {
+    if (state.costs[i] !== undefined) el.value = state.costs[i];
+  });
+  calcTotal();
+}
+
+// ========== 進捗 ==========
+function updateProgress() {
+  const items = document.querySelectorAll('#tab-checklist .item');
+  const checked = document.querySelectorAll('#tab-checklist .item.checked');
+  const pct = items.length ? Math.round(checked.length / items.length * 100) : 0;
+  document.getElementById('progress').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = checked.length + ' / ' + items.length + ' チェック済み';
+}
+
+// ========== タブ ==========
+function switchTab(name) {
+  const names = ['checklist','move','buy','morning','schedule','ceremony'];
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', names[i] === name));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ========== モーダル ==========
+let currentItem = null;
+let currentRender = null;
+
+function openActionModal(item, renderFn) {
+  currentItem = item;
+  currentRender = renderFn;
+  document.getElementById('modal-title').textContent = item.text || '';
+  document.getElementById('action-modal').style.display = 'flex';
+}
+function closeModal() { document.getElementById('action-modal').style.display = 'none'; }
+
+function doEdit() {
+  closeModal();
+  document.getElementById('edit-text').value = currentItem.text || '';
+  document.getElementById('edit-note').value = currentItem.note || '';
+  document.getElementById('edit-modal').style.display = 'flex';
+}
+function closeEditModal() { document.getElementById('edit-modal').style.display = 'none'; }
+function saveEdit() {
+  const t = document.getElementById('edit-text').value.trim();
+  if (!t) return;
+  currentItem.text = t;
+  currentItem.note = document.getElementById('edit-note').value.trim() || undefined;
+  closeEditModal();
+  currentRender && currentRender();
+  saveData();
+}
+
+function doDelete() {
+  closeModal();
+  document.getElementById('delete-modal').style.display = 'flex';
+}
+function closeDeleteModal() { document.getElementById('delete-modal').style.display = 'none'; }
+function confirmDelete() {
+  // どのリストから削除するか探す
+  ['checklist','buy','morning'].forEach(type => {
+    const data = state[type];
+    data.forEach(group => {
+      const idx = group.items.indexOf(currentItem);
+      if (idx !== -1) group.items.splice(idx, 1);
+    });
+  });
+  closeDeleteModal();
+  currentRender && currentRender();
+  saveData();
+}
+
+let addTarget = { type: null, groupIdx: null };
+function openAddModal(type, groupIdx) {
+  addTarget = { type, groupIdx };
+  document.getElementById('add-text').value = '';
+  document.getElementById('add-note').value = '';
+  document.getElementById('add-modal').style.display = 'flex';
+}
+function closeAddModal() { document.getElementById('add-modal').style.display = 'none'; }
+function confirmAdd() {
+  const text = document.getElementById('add-text').value.trim();
+  if (!text) return;
+  const note = document.getElementById('add-note').value.trim() || undefined;
+  const newItem = { text, note };
+  state[addTarget.type][addTarget.groupIdx].items.push(newItem);
+  closeAddModal();
+  if (addTarget.type === 'checklist') renderChecklist();
+  else if (addTarget.type === 'buy') renderBuy();
+  else if (addTarget.type === 'morning') renderMorning();
+  saveData();
+}
+
+// ========== 初期化 ==========
+loadData();
+renderChecklist();
+renderBuy();
+renderMorning();
+renderCeremony();
+loadCosts();
+</script>
+</body>
+</html>
